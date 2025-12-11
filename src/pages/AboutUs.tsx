@@ -11,7 +11,7 @@ const AboutUs: React.FC = () => {
             <div className="relative overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
                     <div className="text-center">
-                        <img src="/optimum.png" alt="OPTIMUM" className="mx-auto h-20 w-20 mb-6" />
+                        <img src="/favicon.png" alt="OPTIMUM" className="mx-auto h-20 w-20 mb-6" />
                         <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-6">
                             About OPTIMUM
                         </h1>

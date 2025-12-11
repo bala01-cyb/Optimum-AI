@@ -13,13 +13,14 @@ export const aiService = {
      * Generate questions from text content using Deepseek-R1 via compatible API
      * @param text The source text content to generate questions from
      * @param apiKey The API key for the service
+     * @param questionCount Number of questions to generate (default: 10)
      * @returns Array of generated questions
      */
-    generateQuestionsFromText: async (text: string, apiKey: string): Promise<GeneratedQuestion[]> => {
+    generateQuestionsFromText: async (text: string, apiKey: string, questionCount: number = 10): Promise<GeneratedQuestion[]> => {
         try {
             const prompt = `
         You are a helpful assistant that generates multiple-choice questions from text.
-        Based on the following text, generate 5-10 multiple-choice questions.
+        Based on the following text, generate exactly ${questionCount} multiple-choice questions.
         
         The output must be in a strictly CSV-like format with the following columns:
         Question, OptionA, OptionB, OptionC, OptionD, OptionE, Base 0 Index of Correct Answer (0-4)
@@ -27,9 +28,10 @@ export const aiService = {
         Do not include a header row.
         Do not include any other text, explanations, or markdown formatting. Just the CSV lines.
         Ensure options are distinct.
+        Generate exactly ${questionCount} questions - no more, no less.
         
         Text content:
-        ${text.substring(0, 5000)} // Truncate to avoid token limits if necessary
+        ${text.substring(0, 8000)} // Increased limit for more content
       `;
 
             // Using OpenRouter API endpoint for DeepSeek R1T2 Chimera
@@ -45,7 +47,8 @@ export const aiService = {
                     model: 'tngtech/deepseek-r1t2-chimera:free',
                     messages: [
                         { role: 'user', content: prompt }
-                    ]
+                    ],
+                    max_tokens: 4000 // Increased to allow more questions
                 })
             });
 

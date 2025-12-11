@@ -56,7 +56,7 @@ export class AdaptiveTestService {
     return AdaptiveTestService.instance;
   }
 
-  private constructor() {}
+  private constructor() { }
 
   // Difficulty promotion/demotion functions
   promoteDifficulty(difficulty: DifficultyLevel): DifficultyLevel {
@@ -70,11 +70,11 @@ export class AdaptiveTestService {
     // If student has been performing exceptionally well, skip a level
     const recentPerformance = currentState.difficultyFlow.slice(-5); // Last 5 questions
     const correctCount = recentPerformance.filter(entry => entry.wasCorrect).length;
-    
+
     // If 4 out of last 5 questions are correct AND currently at easy, skip to hard
-    return currentState.currentDifficulty === 'easy' && 
-           correctCount >= 4 && 
-           recentPerformance.length === 5;
+    return currentState.currentDifficulty === 'easy' &&
+      correctCount >= 4 &&
+      recentPerformance.length === 5;
   }
 
   demoteDifficulty(difficulty: DifficultyLevel): DifficultyLevel {
@@ -89,25 +89,25 @@ export class AdaptiveTestService {
       // Get student's recent test performance
       const historyRef = ref(database, `adaptiveTestStates/${userId}`);
       const snapshot = await get(historyRef);
-      
+
       if (!snapshot.exists()) {
         return ADAPTIVE_CONFIG.INITIAL_DIFFICULTY; // New student, start at medium
       }
-      
+
       const allTests = Object.values(snapshot.val()) as AdaptiveTestState[];
       const recentTests = allTests.slice(-3); // Last 3 tests
-      
+
       // Calculate average final difficulty
       const avgDifficulty = recentTests.reduce((sum, test) => {
         const difficultyValue = { easy: 1, medium: 2, hard: 3 }[test.currentDifficulty];
         return sum + difficultyValue;
       }, 0) / recentTests.length;
-      
+
       // Determine starting difficulty based on history
       if (avgDifficulty >= 2.5) return 'hard';   // Strong performer
       if (avgDifficulty >= 1.5) return 'medium'; // Average performer  
       return 'easy'; // Struggling student
-      
+
     } catch (error) {
       console.error('Error determining initial difficulty:', error);
       return ADAPTIVE_CONFIG.INITIAL_DIFFICULTY;
@@ -118,7 +118,7 @@ export class AdaptiveTestService {
   async initializeAdaptiveState(userId: string, testId: string): Promise<AdaptiveTestState> {
     // 🎯 Use smart initial difficulty instead of fixed medium
     const smartInitialDifficulty = await this.determineInitialDifficulty(userId);
-    
+
     const initialState: AdaptiveTestState = {
       currentDifficulty: smartInitialDifficulty,
       correctStreak: 0,
@@ -133,7 +133,7 @@ export class AdaptiveTestService {
 
     const stateRef = ref(database, `adaptiveTestStates/${userId}/${testId}`);
     await set(stateRef, initialState);
-    
+
     console.log(`🎯 Student initialized at ${smartInitialDifficulty} difficulty based on history`);
     return initialState;
   }
@@ -142,50 +142,50 @@ export class AdaptiveTestService {
   async getAdaptiveState(userId: string, testId: string): Promise<AdaptiveTestState | null> {
     const stateRef = ref(database, `adaptiveTestStates/${userId}/${testId}`);
     const snapshot = await get(stateRef);
-    
+
     if (snapshot.exists()) {
       return snapshot.val() as AdaptiveTestState;
     }
-    
+
     return null;
   }
 
   // Intelligent question fetching strategy
   async fetchNextQuestion(
-    testId: string, 
-    userId: string, 
+    testId: string,
+    userId: string,
     currentState: AdaptiveTestState
   ): Promise<AdaptiveQuestion | null> {
     const { currentDifficulty, askedQuestionIds } = currentState;
-    
+
     try {
       // Strategy 1: Try to get questions of current difficulty level
       let questions = await this.getQuestionsByDifficulty(testId, currentDifficulty);
-      
+
       // Filter out already asked questions
       questions = questions.filter(q => !askedQuestionIds.includes(q.id));
-      
+
       // Strategy 2: If no questions available at current difficulty, try adjacent levels
       if (questions.length === 0) {
         console.warn(`No questions available at ${currentDifficulty} level, trying fallback`);
         questions = await this.getFallbackQuestions(testId, currentDifficulty, askedQuestionIds);
       }
-      
+
       // Strategy 3: If still no questions, get any available question from the test
       if (questions.length === 0) {
         console.warn('No questions available with fallback, getting any available question');
         questions = await this.getAnyAvailableQuestions(testId, askedQuestionIds);
       }
-      
+
       if (questions.length === 0) {
         console.error('No questions available for test');
         return null;
       }
-      
+
       // Randomly select from available questions to avoid predictable patterns
       const randomIndex = Math.floor(Math.random() * questions.length);
       return questions[randomIndex];
-      
+
     } catch (error) {
       console.error('Error fetching next question:', error);
       return null;
@@ -194,16 +194,16 @@ export class AdaptiveTestService {
 
   // Get questions by difficulty level for a specific test
   private async getQuestionsByDifficulty(
-    testId: string, 
+    testId: string,
     difficulty: DifficultyLevel
   ): Promise<AdaptiveQuestion[]> {
-    const questionsRef = ref(database, `tests/${testId}/questions`);
+    const questionsRef = ref(database, `questions/${testId}`);
     const snapshot = await get(questionsRef);
-    
+
     if (!snapshot.exists()) {
       return [];
     }
-    
+
     const questionsData = snapshot.val();
     return Object.entries(questionsData)
       .map(([id, data]: [string, any]) => ({
@@ -221,7 +221,7 @@ export class AdaptiveTestService {
     askedQuestionIds: string[]
   ): Promise<AdaptiveQuestion[]> {
     const fallbackLevels: DifficultyLevel[] = [];
-    
+
     // Define fallback order based on current difficulty
     if (currentDifficulty === 'easy') {
       fallbackLevels.push('medium', 'hard');
@@ -230,17 +230,17 @@ export class AdaptiveTestService {
     } else if (currentDifficulty === 'hard') {
       fallbackLevels.push('medium', 'easy');
     }
-    
+
     for (const level of fallbackLevels) {
       const questions = await this.getQuestionsByDifficulty(testId, level);
       const availableQuestions = questions.filter(q => !askedQuestionIds.includes(q.id));
-      
+
       if (availableQuestions.length > 0) {
         console.log(`Using fallback difficulty: ${level} (original: ${currentDifficulty})`);
         return availableQuestions;
       }
     }
-    
+
     return [];
   }
 
@@ -249,13 +249,13 @@ export class AdaptiveTestService {
     testId: string,
     askedQuestionIds: string[]
   ): Promise<AdaptiveQuestion[]> {
-    const questionsRef = ref(database, `tests/${testId}/questions`);
+    const questionsRef = ref(database, `questions/${testId}`);
     const snapshot = await get(questionsRef);
-    
+
     if (!snapshot.exists()) {
       return [];
     }
-    
+
     const questionsData = snapshot.val();
     return Object.entries(questionsData)
       .map(([id, data]: [string, any]) => ({
@@ -290,7 +290,7 @@ export class AdaptiveTestService {
     if (isCorrect) {
       newCorrectStreak += 1;
       newWrongStreak = 0;
-      
+
       // Check if we should promote difficulty
       if (newCorrectStreak >= ADAPTIVE_CONFIG.CORRECT_THRESHOLD) {
         // 🚀 Check if student qualifies for level skipping
@@ -303,14 +303,14 @@ export class AdaptiveTestService {
         }
         newCorrectStreak = 0; // Reset streak after promotion
       }
-      
+
       // Update score
       currentState.score += 1;
       currentState.weightedScore += ADAPTIVE_CONFIG.WEIGHTS[currentState.currentDifficulty];
     } else {
       newWrongStreak += 1;
       newCorrectStreak = 0;
-      
+
       // Check if we should demote difficulty
       if (newWrongStreak >= ADAPTIVE_CONFIG.WRONG_THRESHOLD) {
         newDifficulty = this.demoteDifficulty(currentState.currentDifficulty);
@@ -353,23 +353,23 @@ export class AdaptiveTestService {
     hard: number;
     total: number;
   }> {
-    const questionsRef = ref(database, `tests/${testId}/questions`);
+    const questionsRef = ref(database, `questions/${testId}`);
     const snapshot = await get(questionsRef);
-    
+
     if (!snapshot.exists()) {
       return { easy: 0, medium: 0, hard: 0, total: 0 };
     }
-    
+
     const questionsData = snapshot.val();
     const questions = Object.values(questionsData) as AdaptiveQuestion[];
-    
+
     const stats = {
       easy: questions.filter(q => q.difficulty === 'easy').length,
       medium: questions.filter(q => q.difficulty === 'medium').length,
       hard: questions.filter(q => q.difficulty === 'hard').length,
       total: questions.length,
     };
-    
+
     return stats;
   }
 
@@ -381,21 +381,21 @@ export class AdaptiveTestService {
   }> {
     const stats = await this.getDifficultyStats(testId);
     const warnings: string[] = [];
-    
+
     if (stats.easy < ADAPTIVE_CONFIG.MIN_QUESTIONS_PER_DIFFICULTY) {
       warnings.push(`Only ${stats.easy} easy questions available (recommended: ${ADAPTIVE_CONFIG.MIN_QUESTIONS_PER_DIFFICULTY}+)`);
     }
-    
+
     if (stats.medium < ADAPTIVE_CONFIG.MIN_QUESTIONS_PER_DIFFICULTY) {
       warnings.push(`Only ${stats.medium} medium questions available (recommended: ${ADAPTIVE_CONFIG.MIN_QUESTIONS_PER_DIFFICULTY}+)`);
     }
-    
+
     if (stats.hard < ADAPTIVE_CONFIG.MIN_QUESTIONS_PER_DIFFICULTY) {
       warnings.push(`Only ${stats.hard} hard questions available (recommended: ${ADAPTIVE_CONFIG.MIN_QUESTIONS_PER_DIFFICULTY}+)`);
     }
-    
+
     const isValid = stats.total > 0 && (stats.easy > 0 || stats.medium > 0 || stats.hard > 0);
-    
+
     return {
       isValid,
       warnings,

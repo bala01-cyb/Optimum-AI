@@ -42,7 +42,7 @@ const AdminLoginForm: React.FC = () => {
       <div className="max-w-md w-full space-y-8 bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 transition-all duration-300">
         {/* Header */}
         <div className="text-center">
-          <img src="/optimum.png" alt="OPTIMUM" className="mx-auto h-16 w-16 mb-4" />
+          <img src="/favicon.png" alt="OPTIMUM" className="mx-auto h-16 w-16 mb-4" />
 
           <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
             OPTIMUM

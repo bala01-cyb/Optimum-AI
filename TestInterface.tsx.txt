@@ -1,29 +1,25 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ref, get, set, runTransaction } from 'firebase/database';
-import { Clock, AlertTriangle, CheckCircle, RefreshCw, Shield, Calculator, X, Minus, Plus, Divide, Equal, TrendingUp, Target } from 'lucide-react';
+import { Clock, AlertTriangle, CheckCircle, RefreshCw, Shield, Calculator, X, Minus, Plus, Divide, Equal } from 'lucide-react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { database } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTestProctor } from '../../hooks/useTestProctor';
 import ProctorWarning from '../common/ProctorWarning';
-import DifficultyBadge from '../common/DifficultyBadge';
-import { adaptiveTestService, AdaptiveTestState, AdaptiveQuestion, DifficultyLevel } from '../../services/adaptiveTestService';
 
-// Updated interface to match adaptive system
-interface Question extends AdaptiveQuestion { }
-
-interface AdaptiveTestInfo {
-  currentDifficulty: DifficultyLevel;
-  correctStreak: number;
-  wrongStreak: number;
-  weightedScore: number;
-  difficultyFlow: Array<{
-    difficulty: DifficultyLevel;
-    wasCorrect: boolean;
-    timestamp: number;
-  }>;
+// Interface definitions remain the same
+interface Question {
+  id: string;
+  question: string;
+  questionType?: 'text' | 'image' | 'code';
+  imageUrl?: string;
+  codeContent?: string;
+  codeLanguage?: string;
+  options: string[];
+  correctAnswer: number;
+  originalCorrectAnswerValue?: string;
 }
 
 interface Test {
@@ -44,19 +40,13 @@ const TestInterface: React.FC = () => {
   const { userData } = useAuth();
 
   const [test, setTest] = useState<Test | null>(null);
-  const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
-  const [answers, setAnswers] = useState<Record<string, number>>({});
-  const [timeLeft, setTimeLeft] = useState(0);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [timeLeft, setTimeLeft] = useState(0);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [testEnded, setTestEnded] = useState(false);
-
-  // Adaptive testing state
-  const [adaptiveState, setAdaptiveState] = useState<AdaptiveTestState | null>(null);
-  const [isAdaptiveMode, setIsAdaptiveMode] = useState(true);
-  const [questionStartTime, setQuestionStartTime] = useState(Date.now());
   const [showProctorWarning, setShowProctorWarning] = useState(false);
   const [showCalculator, setShowCalculator] = useState(false);
   const [calculatorDisplay, setCalculatorDisplay] = useState('0');
@@ -66,7 +56,7 @@ const TestInterface: React.FC = () => {
   const [calculatorWaitingForNewValue, setCalculatorWaitingForNewValue] = useState(false);
   const [showIncompleteWarning, setShowIncompleteWarning] = useState(false);
   const [incompleteQuestions, setIncompleteQuestions] = useState<number[]>([]);
-
+  
   // Calculator history (persisted)
   const [calculatorHistory, setCalculatorHistory] = useState<Array<{ expression: string; result: string }>>(() => {
     try {
@@ -76,11 +66,11 @@ const TestInterface: React.FC = () => {
       return [];
     }
   });
-
+  
   useEffect(() => {
     try {
       localStorage.setItem('calculatorHistory', JSON.stringify(calculatorHistory));
-    } catch { }
+    } catch {}
   }, [calculatorHistory]);
 
   const hasStartedTest = useRef(false);
@@ -92,15 +82,15 @@ const TestInterface: React.FC = () => {
   // Mobile detection function
   const isMobile = () => {
     const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
-
+    
     // Check for mobile devices
     const mobileRegex = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i;
     const isMobileUserAgent = mobileRegex.test(userAgent.toLowerCase());
-
+    
     // Check for touch capability and screen size
     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     const isSmallScreen = window.innerWidth <= 768;
-
+    
     return isMobileUserAgent || (isTouchDevice && isSmallScreen);
   };
 
@@ -153,15 +143,15 @@ const TestInterface: React.FC = () => {
 
     try {
       console.log('Clearing all test data for fresh start...');
-
+      
       // Clear response data
       const responseRef = ref(database, `responses/${testId}/${userData.uid}`);
       await set(responseRef, null);
-
+      
       // Clear user test state
       const userTestStateRef = ref(database, `userTestStates/${userData.uid}/${testId}`);
       await set(userTestStateRef, null);
-
+      
       console.log('All test data cleared successfully');
       return true;
     } catch (error) {
@@ -219,7 +209,7 @@ const TestInterface: React.FC = () => {
       // 4. Check user test state with detailed debugging
       const userTestStateRef = ref(database, `userTestStates/${userData.uid}/${testId}`);
       const userTestStateSnapshot = await get(userTestStateRef);
-
+      
       let userTestState = null;
       if (userTestStateSnapshot.exists()) {
         userTestState = userTestStateSnapshot.val();
@@ -231,24 +221,24 @@ const TestInterface: React.FC = () => {
       // 5. VERY STRICT validation for completed test
       if (responseSnapshot.exists() && !forceRestart) {
         const response = responseSnapshot.val();
-
+        
         // Check each field individually
-        const hasAnswers = response &&
-          response.answers &&
-          typeof response.answers === 'object' &&
+        const hasAnswers = response && 
+          response.answers && 
+          typeof response.answers === 'object' && 
           Object.keys(response.answers).length > 0;
-
-        const hasCompletedAt = response &&
-          response.completedAt &&
-          typeof response.completedAt === 'string' &&
+          
+        const hasCompletedAt = response && 
+          response.completedAt && 
+          typeof response.completedAt === 'string' && 
           response.completedAt.length > 10; // Valid ISO string should be longer
-
-        const hasValidScore = response &&
-          typeof response.score === 'number' &&
+          
+        const hasValidScore = response && 
+          typeof response.score === 'number' && 
           response.score >= 0;
-
-        const hasTotalQuestions = response &&
-          typeof response.totalQuestions === 'number' &&
+          
+        const hasTotalQuestions = response && 
+          typeof response.totalQuestions === 'number' && 
           response.totalQuestions > 0;
 
         console.log('=== VALIDATION RESULTS ===');
@@ -268,22 +258,7 @@ const TestInterface: React.FC = () => {
         }
       }
 
-      // 6. Initialize or resume adaptive testing state (if adaptive mode)
-      if (testData.isAdaptive) {
-        let currentAdaptiveState = await adaptiveTestService.getAdaptiveState(userData.uid, testId);
-
-        if (!currentAdaptiveState || forceRestart) {
-          console.log('Initializing new adaptive test state');
-          currentAdaptiveState = await adaptiveTestService.initializeAdaptiveState(userData.uid, testId);
-        } else {
-          console.log('Resuming existing adaptive test state:', currentAdaptiveState);
-        }
-
-        setAdaptiveState(currentAdaptiveState);
-        setIsAdaptiveMode(true);
-      }
-
-      // 7. Handle timing - ALWAYS start with full time initially
+      // 6. Handle timing - ALWAYS start with full time initially
       let userStartedAt = now;
       let initialTimeLeft = testData.duration * 60;
 
@@ -296,14 +271,14 @@ const TestInterface: React.FC = () => {
       if (!forceRestart && userTestStateSnapshot.exists()) {
         const existingState = userTestStateSnapshot.val();
         console.log('Existing user test state:', existingState);
-
+        
         if (existingState && existingState.startedAt && typeof existingState.startedAt === 'number') {
           const elapsed = Math.floor((now - existingState.startedAt) / 1000);
           const remainingTime = Math.max(0, (testData.duration * 60) - elapsed);
-
+          
           console.log('Elapsed time (seconds):', elapsed);
           console.log('Calculated remaining time:', remainingTime);
-
+          
           if (remainingTime > 30) { // Give at least 30 seconds buffer
             userStartedAt = existingState.startedAt;
             initialTimeLeft = remainingTime;
@@ -326,11 +301,11 @@ const TestInterface: React.FC = () => {
         hasStartedTest.current = true;
         console.log(`Test timing recorded: ${initialTimeLeft} seconds`);
       }
-
+      
       // Set time left AFTER all calculations
       setTimeLeft(initialTimeLeft);
 
-      // 8. Load ALL questions (for both regular and adaptive modes)
+      // 7. Load questions
       const questionsRef = ref(database, `questions/${testId}`);
       const questionsSnapshot = await get(questionsRef);
 
@@ -357,7 +332,6 @@ const TestInterface: React.FC = () => {
           codeLanguage: q.codeLanguage || 'javascript',
           options: [...q.options],
           correctAnswer: q.correctAnswer,
-          difficulty: q.difficulty || 'medium', // Add difficulty for adaptive mode
           originalCorrectAnswerValue: q.options[q.correctAnswer],
         };
       }).filter(Boolean) as Question[]; // Remove null entries
@@ -378,14 +352,14 @@ const TestInterface: React.FC = () => {
 
       setQuestions(finalQuestions);
       console.log(`Test ready: ${finalQuestions.length} questions loaded`);
-      console.log(`Starting test with ${initialTimeLeft} seconds (${Math.floor(initialTimeLeft / 60)} minutes)`);
-
+      console.log(`Starting test with ${initialTimeLeft} seconds (${Math.floor(initialTimeLeft/60)} minutes)`);
+      
       // Start proctoring tracking and auto-enter fullscreen when test is ready
       setTimeout(() => {
         startTestTracking();
         enterFullscreen().catch(console.error);
       }, 1000);
-
+      
     } catch (error) {
       console.error('Error fetching test data:', error);
       navigate('/dashboard');
@@ -406,90 +380,21 @@ const TestInterface: React.FC = () => {
   const handleAnswerSelect = (optionIndex: number) => {
     if (testEnded) return;
 
-    if (isAdaptiveMode && currentQuestion) {
-      // Use adaptive answer handling
-      handleAdaptiveAnswer(optionIndex);
-    } else {
-      // Legacy handling for non-adaptive tests
-      const currentQId = questions[currentQuestionIndex].id;
-      setAnswers(prev => ({
-        ...prev,
-        [currentQId]: optionIndex
-      }));
-    }
-  };
-
-  // Handle answer selection with adaptive logic
-  const handleAdaptiveAnswer = async (selectedOption: number) => {
-    if (!currentQuestion || !adaptiveState || submitting || testEnded) return;
-
-    try {
-      setSubmitting(true);
-
-      const isCorrect = selectedOption === currentQuestion.correctAnswer;
-      const responseTime = Date.now() - questionStartTime;
-
-      // Store the answer
-      setAnswers(prev => ({
-        ...prev,
-        [currentQuestion.id]: selectedOption
-      }));
-
-      console.log(`Question ${currentQuestion.id} answered:`, {
-        selected: selectedOption,
-        correct: currentQuestion.correctAnswer,
-        isCorrect,
-        responseTime: responseTime + 'ms',
-        difficulty: currentQuestion.difficulty
-      });
-
-      // Process answer through adaptive system
-      const updatedState = await adaptiveTestService.processAnswer(
-        userData!.uid,
-        testId!,
-        currentQuestion.id,
-        isCorrect,
-        responseTime
-      );
-
-      setAdaptiveState(updatedState);
-
-      // Brief pause to show user their selection
-      await new Promise(resolve => setTimeout(resolve, 800));
-
-      // Fetch next question
-      const nextQuestion = await adaptiveTestService.fetchNextQuestion(
-        testId!,
-        userData!.uid,
-        updatedState
-      );
-
-      if (nextQuestion) {
-        setCurrentQuestion(nextQuestion);
-        setQuestionStartTime(Date.now());
-      } else {
-        // No more questions available - submit test
-        console.log('No more questions available, submitting test');
-        await handleSubmitTest();
-        return;
-      }
-
-    } catch (error) {
-      console.error('Error handling adaptive answer:', error);
-      // Fall back to regular behavior on error
-    } finally {
-      setSubmitting(false);
-    }
+    const currentQId = questions[currentQuestionIndex].id;
+    setAnswers(prev => ({
+      ...prev,
+      [currentQId]: optionIndex
+    }));
   };
 
   const handleSubmitTest = async (forceScore?: number) => {
     console.log('handleSubmitTest called', forceScore !== undefined ? `with forced score: ${forceScore}` : '');
-
+    
     if (submitting) {
       console.log('Already submitting, ignoring duplicate call');
       return;
     }
-
+    
     if (!userData?.uid || !testId) {
       console.error('Missing required data:', { uid: userData?.uid, testId });
       alert('Missing user or test information. Please refresh and try again.');
@@ -498,7 +403,7 @@ const TestInterface: React.FC = () => {
 
     const answeredCount = Object.keys(answers).length;
     console.log('Answered questions count:', answeredCount);
-
+    
     if (answeredCount === 0 && forceScore === undefined) {
       alert('Please answer at least one question before submitting the test.');
       return;
@@ -506,17 +411,17 @@ const TestInterface: React.FC = () => {
 
     console.log('Starting test submission...');
     setSubmitting(true);
-
+    
     // Don't set testEnded here, set it only after successful submission
 
     try {
       let score = 0;
-
+      
       console.log('=== SCORE CALCULATION DEBUG ===');
       console.log('Questions array:', questions.map(q => ({ id: q.id, correctAnswer: q.correctAnswer })));
       console.log('User answers:', answers);
       console.log('Force score provided:', forceScore);
-
+      
       // If forceScore is provided (for violations), use it. Otherwise calculate normally.
       if (forceScore !== undefined) {
         score = forceScore;
@@ -529,7 +434,7 @@ const TestInterface: React.FC = () => {
           console.log(`  User answer: ${userAnswer} (type: ${typeof userAnswer})`);
           console.log(`  Correct answer: ${question.correctAnswer} (type: ${typeof question.correctAnswer})`);
           console.log(`  Is correct: ${isCorrect}`);
-
+          
           if (isCorrect) {
             score++;
             console.log(`  Score incremented to: ${score}`);
@@ -543,18 +448,18 @@ const TestInterface: React.FC = () => {
         if (obj === null || typeof obj !== 'object') {
           return obj;
         }
-
+        
         if (Array.isArray(obj)) {
           return obj.map(deepSanitize);
         }
-
+        
         const sanitized: any = {};
         for (const key in obj) {
-          if (obj.hasOwnProperty(key) &&
-            !key.startsWith('__') &&
-            !key.startsWith('_react') &&
-            key !== 'target' &&
-            key !== 'currentTarget') {
+          if (obj.hasOwnProperty(key) && 
+              !key.startsWith('__') && 
+              !key.startsWith('_react') &&
+              key !== 'target' &&
+              key !== 'currentTarget') {
             sanitized[key] = deepSanitize(obj[key]);
           }
         }
@@ -563,7 +468,7 @@ const TestInterface: React.FC = () => {
 
       // Create detailed answers with both indices and values for proper result comparison
       const detailedAnswers: Record<string, { index: number; value: string; isCorrect: boolean }> = {};
-
+      
       questions.forEach(question => {
         const userAnswerIndex = answers[question.id];
         if (userAnswerIndex !== undefined) {
@@ -574,7 +479,7 @@ const TestInterface: React.FC = () => {
           };
         }
       });
-
+      
       // Create clean response data with only primitive values
       const responseData = {
         score: Number(score),
@@ -589,11 +494,11 @@ const TestInterface: React.FC = () => {
       // Add comprehensive debug logging
       console.log('Pre-sanitization answers:', JSON.stringify(answers, null, 2));
       console.log('Post-sanitization responseData:', JSON.stringify(responseData, null, 2));
-
+      
       // Additional safety check - convert to JSON and back to ensure clean serialization
       const finalResponseData = JSON.parse(JSON.stringify(responseData));
       console.log('Final cleaned responseData:', JSON.stringify(finalResponseData, null, 2));
-
+      
       const responseRef = ref(database, `responses/${testId}/${userData.uid}`);
       await set(responseRef, finalResponseData);
 
@@ -680,21 +585,21 @@ const TestInterface: React.FC = () => {
   // Function to handle submit with incomplete check
   const handleSubmitAttempt = () => {
     const unansweredQuestions = getUnansweredQuestions();
-
+    
     if (unansweredQuestions.length > 0) {
       // Show warning animation
       setIncompleteQuestions(unansweredQuestions);
       setShowIncompleteWarning(true);
-
+      
       // Auto-hide the warning after 5 seconds
       setTimeout(() => {
         setShowIncompleteWarning(false);
       }, 5000);
-
+      
       // Don't proceed with submission
       return;
     }
-
+    
     // All questions answered, proceed with normal submission
     handleSubmitTest();
   };
@@ -711,7 +616,7 @@ const TestInterface: React.FC = () => {
   // Calculator functions
   const handleCalculatorButtonClick = (value: string) => {
     if (testEnded) return;
-
+    
     switch (value) {
       case '=':
         calculateResult();
@@ -754,7 +659,7 @@ const TestInterface: React.FC = () => {
       setCalculatorPrevValue(inputValue);
       setCalculatorExpression(prev => {
         const base = prev === '' ? String(inputValue) : prev;
-        return base.replace(/\s+$/, '') + ' ' + nextOperator + ' ';
+        return base.replace(/\s+$/,'') + ' ' + nextOperator + ' ';
       });
     } else if (calculatorOperation) {
       // Chain calculation: compute intermediate result, show it, then append next operator
@@ -778,14 +683,14 @@ const TestInterface: React.FC = () => {
       const exprRaw = calculatorExpression.trim();
       const exprPretty = exprRaw.replace(/\*/g, '×').replace(/\//g, '÷');
       const resultStr = String(newValue);
-
+      
       // Update display and expression line to show full equation
       setCalculatorDisplay(resultStr);
       setCalculatorExpression(`${exprPretty} = ${resultStr}`);
-
+      
       // Push to history (latest first, cap at 25)
       setCalculatorHistory(prev => [{ expression: exprPretty, result: resultStr }, ...prev].slice(0, 25));
-
+      
       setCalculatorPrevValue(null);
       setCalculatorOperation(null);
       setCalculatorWaitingForNewValue(true);
@@ -827,8 +732,8 @@ const TestInterface: React.FC = () => {
             <div className="bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 border-b">
               {question.codeLanguage}
             </div>
-            <SyntaxHighlighter
-              language={question.codeLanguage}
+            <SyntaxHighlighter 
+              language={question.codeLanguage} 
               style={tomorrow}
               customStyle={{ margin: 0, fontSize: '14px' }}
             >
@@ -839,21 +744,21 @@ const TestInterface: React.FC = () => {
         </div>
       );
     }
-
+    
     if (question.questionType === 'image' && question.imageUrl) {
       return (
         <div className="space-y-3">
           <h2 className="text-lg font-medium text-gray-900">{question.question}</h2>
-          <img
-            src={question.imageUrl}
-            alt="Question image"
+          <img 
+            src={question.imageUrl} 
+            alt="Question image" 
             className="max-w-full h-auto rounded-lg border"
             style={{ maxHeight: '400px' }}
           />
         </div>
       );
     }
-
+    
     return <h2 className="text-lg font-medium text-gray-900">{question.question}</h2>;
   };
 
@@ -879,16 +784,16 @@ const TestInterface: React.FC = () => {
             <AlertTriangle className="mx-auto h-12 w-12 text-red-500 dark:text-red-400 float-animation" />
             <h3 className="mt-6 text-xl font-semibold text-gray-900 dark:text-white">Test not available</h3>
             <p className="mt-3 text-gray-600 dark:text-gray-400">This test is not currently accessible or contains no questions.</p>
-
-
+            
+            
             <div className="mt-6 space-x-2">
-              <button
+              <button 
                 onClick={() => navigate('/dashboard')}
                 className="btn-modern btn-primary-modern"
               >
                 Go to Dashboard
               </button>
-              <button
+              <button 
                 onClick={handleForceRestart}
                 className="btn-modern bg-red-600 dark:bg-red-700 text-white hover:bg-red-700 dark:hover:bg-red-800"
               >
@@ -902,6 +807,7 @@ const TestInterface: React.FC = () => {
     );
   }
 
+  const currentQuestion = questions[currentQuestionIndex];
 
   return (
     <div className="min-h-screen">
@@ -912,8 +818,9 @@ const TestInterface: React.FC = () => {
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700/50 rounded-lg p-4 mb-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <Shield className={`h-5 w-5 ${proctorState.isFullscreen ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-                  }`} />
+                <Shield className={`h-5 w-5 ${
+                  proctorState.isFullscreen ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                }`} />
                 <div>
                   <p className="text-sm font-medium text-blue-900 dark:text-blue-300">
                     Test Proctoring Active
@@ -939,21 +846,25 @@ const TestInterface: React.FC = () => {
             </div>
           </div>
         ) : (
-          <div className={`border rounded-lg p-4 mb-6 ${proctorState.violationCount > 0
-            ? 'bg-red-50 border-red-200'
-            : 'bg-orange-50 border-orange-200'
-            }`}>
+          <div className={`border rounded-lg p-4 mb-6 ${
+            proctorState.violationCount > 0 
+              ? 'bg-red-50 border-red-200' 
+              : 'bg-orange-50 border-orange-200'
+          }`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <Shield className={`h-5 w-5 ${proctorState.violationCount > 0 ? 'text-red-600' : 'text-orange-600'
-                  }`} />
+                <Shield className={`h-5 w-5 ${
+                  proctorState.violationCount > 0 ? 'text-red-600' : 'text-orange-600'
+                }`} />
                 <div>
-                  <p className={`text-sm font-medium ${proctorState.violationCount > 0 ? 'text-red-900' : 'text-orange-900'
-                    }`}>
+                  <p className={`text-sm font-medium ${
+                    proctorState.violationCount > 0 ? 'text-red-900' : 'text-orange-900'
+                  }`}>
                     Mobile Anti-Cheat Active
                   </p>
-                  <p className={`text-xs ${proctorState.violationCount > 0 ? 'text-red-700' : 'text-orange-700'
-                    }`}>
+                  <p className={`text-xs ${
+                    proctorState.violationCount > 0 ? 'text-red-700' : 'text-orange-700'
+                  }`}>
                     🔒 Split screen, minimize, app switching, one-handed mode detection
                   </p>
                   {proctorState.violationCount > 0 && (
@@ -964,8 +875,9 @@ const TestInterface: React.FC = () => {
                 </div>
               </div>
               <div className="text-right">
-                <p className={`text-sm font-medium ${proctorState.violationCount > 0 ? 'text-red-900' : 'text-orange-900'
-                  }`}>
+                <p className={`text-sm font-medium ${
+                  proctorState.violationCount > 0 ? 'text-red-900' : 'text-orange-900'
+                }`}>
                   Violations: {proctorState.violationCount}/3
                 </p>
                 {proctorState.violationCount >= 2 && (
@@ -982,46 +894,15 @@ const TestInterface: React.FC = () => {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl font-bold text-gray-900">{test.title}</h1>
-            <div className={`flex items-center space-x-2 px-4 py-2 rounded-lg ${timeLeft < 300 ? 'bg-red-50 text-red-700' : 'bg-blue-50 text-blue-700'
-              }`}>
+            <div className={`flex items-center space-x-2 px-4 py-2 rounded-lg ${
+              timeLeft < 300 ? 'bg-red-50 text-red-700' : 'bg-blue-50 text-blue-700'
+            }`}>
               <Clock className="h-5 w-5" />
               <span className="font-mono text-lg font-bold">
                 {formatTime(timeLeft)}
               </span>
             </div>
           </div>
-
-          {/* Adaptive Test Info */}
-          {isAdaptiveMode && adaptiveState && (
-            <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4 mb-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-2">
-                    <Target className="h-5 w-5 text-purple-600" />
-                    <span className="text-sm font-medium text-gray-700">Adaptive Mode</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm text-gray-600">Current Level:</span>
-                    <DifficultyBadge difficulty={adaptiveState.currentDifficulty} size="small" />
-                  </div>
-                </div>
-                <div className="flex items-center space-x-6 text-sm">
-                  <div className="text-center">
-                    <div className="font-semibold text-green-600">✓ {adaptiveState.correctStreak}</div>
-                    <div className="text-xs text-gray-500">Streak</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="font-semibold text-blue-600">{adaptiveState.weightedScore}</div>
-                    <div className="text-xs text-gray-500">Weighted Score</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="font-semibold text-purple-600">{adaptiveState?.askedQuestionIds?.length || 0}</div>
-                    <div className="text-xs text-gray-500">Answered</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
 
           <div className="flex items-center justify-between text-sm text-gray-600">
             <span>Question {currentQuestionIndex + 1} of {questions.length}</span>
@@ -1038,62 +919,34 @@ const TestInterface: React.FC = () => {
 
         {/* Question Card */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-          {/* Question Header with Difficulty Badge */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-3">
-              {isAdaptiveMode && currentQuestion && (
-                <DifficultyBadge
-                  difficulty={currentQuestion.difficulty}
-                  size="medium"
-                  className="animate-pulse"
-                />
-              )}
-              <span className="text-sm font-medium text-gray-600">
-                {isAdaptiveMode
-                  ? `Adaptive Question #${(adaptiveState?.askedQuestionIds?.length || 0) + 1}`
-                  : `Question ${currentQuestionIndex + 1} of ${questions.length}`
-                }
-              </span>
-            </div>
-            {isAdaptiveMode && adaptiveState && adaptiveState.correctStreak >= 1 && (
-              <div className="flex items-center space-x-1 text-sm">
-                <TrendingUp className="h-4 w-4 text-green-500" />
-                <span className="text-green-600 font-medium">
-                  {adaptiveState.correctStreak === 1 ? 'Good streak!' : `${adaptiveState.correctStreak} in a row!`}
-                </span>
-              </div>
-            )}
-          </div>
-
           <div className="mb-6">
-            {questions.length > 0 && renderQuestionContent(questions[currentQuestionIndex])}
+            {renderQuestionContent(currentQuestion)}
           </div>
 
           <div className="space-y-3">
-            {questions[currentQuestionIndex]?.options.map((option, index) => {
-              const currentQ = questions[currentQuestionIndex];
-              return (
-                <button
-                  key={index}
-                  onClick={() => handleAnswerSelect(index)}
-                  disabled={testEnded || submitting}
-                  className={`w-full text-left p-4 rounded-lg border transition-all duration-200 ${answers[currentQ?.id] === index
+            {currentQuestion.options.map((option, index) => (
+              <button
+                key={index}
+                onClick={() => handleAnswerSelect(index)}
+                disabled={testEnded}
+                className={`w-full text-left p-4 rounded-lg border transition-all duration-200 ${
+                  answers[currentQuestion.id] === index
                     ? 'border-blue-500 bg-blue-50 text-blue-900'
                     : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                    } ${testEnded || submitting ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
-                >
-                  <div className="flex items-center">
-                    <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-sm font-medium mr-3 ${answers[currentQ?.id] === index
+                } ${testEnded ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+              >
+                <div className="flex items-center">
+                  <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-sm font-medium mr-3 ${
+                    answers[currentQuestion.id] === index
                       ? 'bg-blue-600 text-white'
                       : 'bg-gray-200 text-gray-600'
-                      }`}>
-                      {String.fromCharCode(65 + index)}
-                    </span>
-                    {option}
-                  </div>
-                </button>
-              );
-            })}
+                  }`}>
+                    {String.fromCharCode(65 + index)}
+                  </span>
+                  {option}
+                </div>
+              </button>
+            ))}
           </div>
         </div>
 
@@ -1113,23 +966,25 @@ const TestInterface: React.FC = () => {
                 <button
                   onClick={handleSubmitAttempt}
                   disabled={submitting || testEnded || timeLeft === 0}
-                  className={`px-6 py-2 text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center space-x-2 ${showIncompleteWarning
-                    ? 'bg-red-500 hover:bg-red-600 animate-pulse'
-                    : 'bg-green-600 hover:bg-green-700'
-                    }`}
+                  className={`px-6 py-2 text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center space-x-2 ${
+                    showIncompleteWarning 
+                      ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
+                      : 'bg-green-600 hover:bg-green-700'
+                  }`}
                 >
-                  <CheckCircle className={`h-4 w-4 ${showIncompleteWarning ? 'animate-bounce' : ''
-                    }`} />
+                  <CheckCircle className={`h-4 w-4 ${
+                    showIncompleteWarning ? 'animate-bounce' : ''
+                  }`} />
                   <span>
-                    {submitting
-                      ? 'Submitting...'
-                      : showIncompleteWarning
-                        ? `Answer ${incompleteQuestions.length} Missing Questions!`
+                    {submitting 
+                      ? 'Submitting...' 
+                      : showIncompleteWarning 
+                        ? `Answer ${incompleteQuestions.length} Missing Questions!` 
                         : 'Submit Test'
                     }
                   </span>
                 </button>
-
+                
                 {/* Incomplete Warning Tooltip */}
                 {showIncompleteWarning && (
                   <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-80 z-50">
@@ -1195,46 +1050,21 @@ const TestInterface: React.FC = () => {
                 key={index}
                 onClick={() => setCurrentQuestionIndex(index)}
                 disabled={testEnded}
-                className={`w-8 h-8 rounded text-xs font-medium transition-colors ${index === currentQuestionIndex
-                  ? 'bg-blue-600 text-white'
-                  : answers[q.id] !== undefined
-                    ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                    : showIncompleteWarning && incompleteQuestions.includes(index)
-                      ? 'bg-red-200 text-red-800 hover:bg-red-300 animate-pulse'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  } ${testEnded ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                className={`w-8 h-8 rounded text-xs font-medium transition-colors ${
+                  index === currentQuestionIndex
+                    ? 'bg-blue-600 text-white'
+                    : answers[q.id] !== undefined
+                      ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                      : showIncompleteWarning && incompleteQuestions.includes(index)
+                        ? 'bg-red-200 text-red-800 hover:bg-red-300 animate-pulse'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                } ${testEnded ? 'cursor-not-allowed' : 'cursor-pointer'}`}
               >
                 {index + 1}
               </button>
             ))}
           </div>
         </div>
-
-        {/* Adaptive Mode Progress */}
-        {
-          isAdaptiveMode && adaptiveState && adaptiveState.difficultyFlow && adaptiveState.difficultyFlow.length > 0 && (
-            <div className="mt-6 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-sm font-medium text-gray-700 mb-3">Difficulty Journey</h3>
-              <div className="flex items-center space-x-2 overflow-x-auto">
-                {adaptiveState.difficultyFlow.slice(-10).map((entry, index) => (
-                  <div
-                    key={index}
-                    className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${entry.wasCorrect
-                      ? 'bg-green-100 text-green-800 border-2 border-green-300'
-                      : 'bg-red-100 text-red-800 border-2 border-red-300'
-                      }`}
-                    title={`${entry.difficulty.toUpperCase()} - ${entry.wasCorrect ? 'Correct' : 'Wrong'}`}
-                  >
-                    {entry.difficulty.charAt(0).toUpperCase()}
-                  </div>
-                ))}
-                {adaptiveState.difficultyFlow.length > 10 && (
-                  <span className="text-xs text-gray-500 ml-2">+{adaptiveState.difficultyFlow.length - 10} more</span>
-                )}
-              </div>
-            </div>
-          )
-        }
       </div>
 
       {/* Calculator Toggle Button */}
@@ -1259,7 +1089,7 @@ const TestInterface: React.FC = () => {
               <X className="h-4 w-4" />
             </button>
           </div>
-
+          
           {/* Calculator Display */}
           <div className="bg-gray-100 dark:bg-slate-800/80 rounded p-3 mb-2 text-right font-mono border border-gray-200 dark:border-slate-600">
             <div className="text-xs text-gray-500 dark:text-gray-400 min-h-[1.25rem] overflow-x-auto whitespace-nowrap">{(calculatorExpression || '\u00A0').replace(/\*/g, '×').replace(/\//g, '÷')}</div>
@@ -1293,7 +1123,7 @@ const TestInterface: React.FC = () => {
               )}
             </div>
           </div>
-
+          
           {/* Calculator Buttons */}
           <div className="grid grid-cols-4 gap-1">
             <button
@@ -1314,7 +1144,7 @@ const TestInterface: React.FC = () => {
             >
               ×
             </button>
-
+            
             <button
               onClick={() => handleCalculatorButtonClick('7')}
               className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-100 py-2 rounded font-medium"
@@ -1339,7 +1169,7 @@ const TestInterface: React.FC = () => {
             >
               −
             </button>
-
+            
             <button
               onClick={() => handleCalculatorButtonClick('4')}
               className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-100 py-2 rounded font-medium"
@@ -1364,7 +1194,7 @@ const TestInterface: React.FC = () => {
             >
               +
             </button>
-
+            
             <button
               onClick={() => handleCalculatorButtonClick('1')}
               className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-100 py-2 rounded font-medium"
@@ -1389,7 +1219,7 @@ const TestInterface: React.FC = () => {
             >
               =
             </button>
-
+            
             <button
               onClick={() => handleCalculatorButtonClick('0')}
               className="col-span-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-100 py-2 rounded font-medium"

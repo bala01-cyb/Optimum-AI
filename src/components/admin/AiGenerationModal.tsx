@@ -67,7 +67,7 @@ const AiGenerationModal: React.FC<AiGenerationModalProps> = ({ onClose, onQuesti
             }
 
             // Step 3: Generate questions using AI service
-            const generatedQuestions = await aiService.generateQuestionsFromText(text, apiKey);
+            const generatedQuestions = await aiService.generateQuestionsFromText(text, apiKey, questionCount);
 
             if (generatedQuestions.length === 0) {
                 throw new Error('AI did not generate any questions. The PDF content may not be suitable for question generation.');
@@ -84,12 +84,12 @@ const AiGenerationModal: React.FC<AiGenerationModalProps> = ({ onClose, onQuesti
                 else if (difficultyIndex === 1) difficulty = 'medium';
                 else difficulty = 'hard';
 
-                // Ensure we have exactly 5 options by padding if necessary
+                // Ensure we have at least 4 options, max 5
                 const options = [...q.options];
-                while (options.length < 5) {
-                    options.push(''); // Will need to be filled by admin
+                while (options.length < 4) {
+                    options.push(''); // Pad to minimum 4 options
                 }
-                // Trim to exactly 5 options
+                // Trim to max 5 options
                 options.splice(5);
 
                 return {
@@ -159,8 +159,8 @@ const AiGenerationModal: React.FC<AiGenerationModalProps> = ({ onClose, onQuesti
                             <label
                                 htmlFor="pdf-file-input"
                                 className={`flex items-center justify-center space-x-2 w-full px-4 py-8 border-2 border-dashed rounded-xl cursor-pointer transition-all ${file
-                                        ? 'border-purple-300 bg-purple-50'
-                                        : 'border-themed-border bg-themed-bg-secondary hover:border-purple-300 hover:bg-purple-50'
+                                    ? 'border-purple-300 bg-purple-50'
+                                    : 'border-themed-border bg-themed-bg-secondary hover:border-purple-300 hover:bg-purple-50'
                                     } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
                                 {file ? (
