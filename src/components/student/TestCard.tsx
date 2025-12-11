@@ -1,0 +1,165 @@
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Clock, Calendar, User, CheckCircle, XCircle, Play, AlertCircle } from 'lucide-react';
+
+interface Test {
+  id: string;
+  title: string;
+  description: string;
+  startTime: string;
+  endTime: string;
+  duration: number;
+  totalQuestions: number;
+}
+
+interface TestResult {
+  score: number;
+  totalQuestions: number;
+  completedAt: string;
+}
+
+interface TestCardProps {
+  test: Test;
+  status: 'upcoming' | 'active' | 'completed' | 'expired';
+  completedResult?: TestResult;
+}
+
+const TestCard: React.FC<TestCardProps> = ({ test, status, completedResult }) => {
+  const navigate = useNavigate();
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      weekday: 'short',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const getStatusColor = () => {
+    switch (status) {
+      case 'active':
+        return 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-700/50 text-orange-800 dark:text-orange-300';
+      case 'upcoming':
+        return 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700/50 text-blue-800 dark:text-blue-300';
+      case 'completed':
+        return 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700/50 text-green-800 dark:text-green-300';
+      case 'expired':
+        return 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700/50 text-red-800 dark:text-red-300';
+      default:
+        return 'bg-gray-50 dark:bg-gray-900/20 border-gray-200 dark:border-gray-700/50 text-gray-800 dark:text-gray-300';
+    }
+  };
+
+  const getStatusIcon = () => {
+    switch (status) {
+      case 'active':
+        return <Play className="h-4 w-4" />;
+      case 'upcoming':
+        return <Calendar className="h-4 w-4" />;
+      case 'completed':
+        return <CheckCircle className="h-4 w-4" />;
+      case 'expired':
+        return <XCircle className="h-4 w-4" />;
+      default:
+        return <Clock className="h-4 w-4" />;
+    }
+  };
+
+  const handleCardClick = () => {
+    if (status === 'active') {
+      navigate(`/test/${test.id}`);
+    } else if (status === 'completed' && completedResult) {
+      navigate(`/result/${test.id}`);
+    }
+  };
+
+  const isClickable = status === 'active' || status === 'completed';
+
+  return (
+    <div 
+      className={`card-modern p-4 sm:p-6 h-full flex flex-col ${
+        isClickable ? 'cursor-pointer transform hover:scale-[1.02] hover:-translate-y-1' : ''
+      }`}
+      onClick={isClickable ? handleCardClick : undefined}
+    >
+      <div className="flex items-start justify-between mb-4 gap-3">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white line-clamp-2 flex-1 min-w-0">
+          {test.title}
+        </h3>
+        <span className={`inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${getStatusColor()}`}>
+          {getStatusIcon()}
+          <span className="ml-1 capitalize hidden sm:inline">{status}</span>
+        </span>
+      </div>
+
+      <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-3 flex-1">
+        {test.description}
+      </p>
+
+      <div className="space-y-2 mb-4">
+        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+          <Calendar className="h-4 w-4 mr-2 text-blue-500 dark:text-blue-400" />
+          <span>Starts: {formatDate(test.startTime)}</span>
+        </div>
+        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+          <AlertCircle className="h-4 w-4 mr-2 text-orange-500 dark:text-orange-400" />
+          <span>Closes: {formatDate(test.endTime)}</span>
+        </div>
+        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+          <Clock className="h-4 w-4 mr-2 text-green-500 dark:text-green-400" />
+          <span>Time Limit: {test.duration} minutes</span>
+        </div>
+        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+          <User className="h-4 w-4 mr-2 text-purple-500 dark:text-purple-400" />
+          {test.totalQuestions} questions
+        </div>
+      </div>
+
+      {status === 'completed' && completedResult && (
+        <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Your Score:</span>
+            <span className={`text-lg font-bold ${
+              (completedResult.score / completedResult.totalQuestions) * 100 >= 70 
+                ? 'text-green-600 dark:text-green-400' 
+                : (completedResult.score / completedResult.totalQuestions) * 100 >= 50
+                  ? 'text-yellow-600 dark:text-yellow-400'
+                  : 'text-red-600 dark:text-red-400'
+            }`}>
+              {completedResult.score}/{completedResult.totalQuestions}
+            </span>
+          </div>
+          <div className="progress-bar mt-3">
+            <div 
+              className="progress-bar-fill"
+              style={{ 
+                width: `${(completedResult.score / completedResult.totalQuestions) * 100}%` 
+              }}
+            ></div>
+          </div>
+        </div>
+      )}
+
+      {status === 'active' && (
+        <button className="w-full mt-4 btn-modern btn-primary-modern">
+          <Play className="h-4 w-4" />
+          Start Test
+        </button>
+      )}
+
+      {status === 'upcoming' && (
+        <div className="text-center mt-4 py-3 px-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+          <Clock className="h-4 w-4 mx-auto mb-1 text-blue-500 dark:text-blue-400" />
+          <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">
+            Starts on {formatDate(test.startTime)}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default TestCard;
