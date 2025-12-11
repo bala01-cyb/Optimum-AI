@@ -45,7 +45,7 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({ onClose, onTestCreate
     {
       question: '',
       questionType: 'text',
-      options: ['', '', '', '', ''],
+      options: ['', '', '', ''], // Start with 4 options
       correctAnswer: 0,
       difficulty: 'medium'
     }
@@ -92,11 +92,33 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({ onClose, onTestCreate
       {
         question: '',
         questionType: 'text',
-        options: ['', '', '', '', ''],
+        options: ['', '', '', ''], // Start with 4 options
         correctAnswer: 0,
         difficulty: 'medium'
       }
     ]);
+  };
+
+  // Add option to a question (max 5 options)
+  const addOption = (questionIndex: number) => {
+    const newQuestions = [...questions];
+    if (newQuestions[questionIndex].options.length < 5) {
+      newQuestions[questionIndex].options.push('');
+      setQuestions(newQuestions);
+    }
+  };
+
+  // Remove option from a question (min 4 options)
+  const removeOption = (questionIndex: number, optionIndex: number) => {
+    const newQuestions = [...questions];
+    if (newQuestions[questionIndex].options.length > 4) {
+      newQuestions[questionIndex].options.splice(optionIndex, 1);
+      // Adjust correct answer if needed
+      if (newQuestions[questionIndex].correctAnswer >= newQuestions[questionIndex].options.length) {
+        newQuestions[questionIndex].correctAnswer = newQuestions[questionIndex].options.length - 1;
+      }
+      setQuestions(newQuestions);
+    }
   };
 
   const removeQuestion = (index: number) => {
@@ -275,13 +297,26 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({ onClose, onTestCreate
         const parsedData = XLSX.utils.sheet_to_json(worksheet) as any[];
 
         const newQuestions: Question[] = parsedData.map((row: any) => {
-          const options = [
+          // Collect all possible options
+          const allOptions = [
             String(row.OptionA || ''),
             String(row.OptionB || ''),
             String(row.OptionC || ''),
             String(row.OptionD || ''),
             String(row.OptionE || '')
           ];
+
+          // Filter out empty options but keep at least 4
+          const options = allOptions.filter(opt => opt.trim() !== '');
+
+          // Ensure we have at least 4 options
+          while (options.length < 4) {
+            options.push('');
+          }
+
+          // Limit to 5 options max
+          const finalOptions = options.slice(0, 5);
+
           let correctAnswerIndex = 0;
 
           if (typeof row.Answer === 'string') {
@@ -292,7 +327,7 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({ onClose, onTestCreate
             else if (answerLetter === 'D') correctAnswerIndex = 3;
             else if (answerLetter === 'E') correctAnswerIndex = 4;
           } else if (typeof row.Answer === 'number') {
-            correctAnswerIndex = Math.max(0, Math.min(4, row.Answer));
+            correctAnswerIndex = Math.max(0, Math.min(finalOptions.length - 1, row.Answer));
           }
 
           // Parse difficulty from Excel
@@ -307,7 +342,7 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({ onClose, onTestCreate
           return {
             question: String(row.Question || ''),
             questionType: 'text' as const,
-            options: options,
+            options: finalOptions,
             correctAnswer: correctAnswerIndex,
             difficulty: difficulty,
           };
@@ -1167,7 +1202,21 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({ onClose, onTestCreate
                       </div>
                     )}
                     <div>
-                      <label className="block text-sm font-medium text-themed-secondary mb-2">Answer Options</label>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="block text-sm font-medium text-themed-secondary">Answer Options ({question.options.length}/5)</label>
+                        <div className="flex items-center space-x-2">
+                          {question.options.length < 5 && (
+                            <button
+                              type="button"
+                              onClick={() => addOption(questionIndex)}
+                              className="text-xs px-2 py-1 bg-green-50 text-green-600 rounded-md hover:bg-green-100 transition-colors flex items-center space-x-1"
+                            >
+                              <Plus className="h-3 w-3" />
+                              <span>Add Option</span>
+                            </button>
+                          )}
+                        </div>
+                      </div>
                       <div className="space-y-2">
                         {question.options.map((option, optionIndex) => (
                           <div key={optionIndex} className="flex items-center space-x-3">
@@ -1191,11 +1240,21 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({ onClose, onTestCreate
                               className="flex-1 px-3 py-2 border border-themed-border bg-themed-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-themed-primary/20 focus:border-themed-primary transition-all duration-150"
                               placeholder={`Option ${String.fromCharCode(65 + optionIndex)}`}
                             />
+                            {question.options.length > 4 && (
+                              <button
+                                type="button"
+                                onClick={() => removeOption(questionIndex, optionIndex)}
+                                className="p-2 text-red-500 hover:bg-red-50 rounded-md transition-colors"
+                                title="Remove option"
+                              >
+                                <X className="h-4 w-4" />
+                              </button>
+                            )}
                           </div>
                         ))}
                       </div>
                       <p className="mt-2 text-xs text-themed-muted">
-                        Select the correct answer by clicking the radio button
+                        Select the correct answer by clicking the radio button. You can have 4-5 options per question.
                       </p>
                     </div>
                   </div>
