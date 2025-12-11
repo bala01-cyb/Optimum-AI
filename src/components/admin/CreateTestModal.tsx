@@ -1004,40 +1004,41 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({ onClose, onTestCreate
                     </div>
 
                     {/* Question Difficulty Selector */}
-                    {testData.isAdaptive && (
-                      <div>
-                        <label className="block text-sm font-medium text-themed-secondary mb-2">Difficulty Level</label>
-                        <div className="flex items-center space-x-3">
-                          <div className="flex space-x-2">
-                            {(['easy', 'medium', 'hard'] as DifficultyLevel[]).map((level) => (
-                              <button
-                                key={level}
-                                type="button"
-                                onClick={() => handleDifficultyChange(questionIndex, level)}
-                                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${question.difficulty === level
-                                  ? 'ring-2 ring-offset-1'
-                                  : 'hover:scale-105'
-                                  }`}
-                                style={{
-                                  backgroundColor: question.difficulty === level ? adaptiveTestService.getDifficultyBadgeStyle(level).backgroundColor : '#f3f4f6',
-                                  color: question.difficulty === level ? adaptiveTestService.getDifficultyBadgeStyle(level).color : '#6b7280',
-                                  borderColor: question.difficulty === level ? adaptiveTestService.getDifficultyBadgeStyle(level).borderColor : '#d1d5db',
-                                  borderWidth: '1px',
-                                  borderStyle: 'solid',
-                                  // ringColor is not a valid style prop, handling via className if needed
-                                }}
-                              >
-                                {level.charAt(0).toUpperCase() + level.slice(1)}
-                              </button>
-                            ))}
-                          </div>
-                          <DifficultyBadge difficulty={question.difficulty} size="small" />
+                    <div>
+                      <label className="block text-sm font-medium text-themed-secondary mb-2">Difficulty Level</label>
+                      <div className="flex items-center space-x-3">
+                        <div className="flex space-x-2">
+                          {(['easy', 'medium', 'hard'] as DifficultyLevel[]).map((level) => (
+                            <button
+                              key={level}
+                              type="button"
+                              onClick={() => handleDifficultyChange(questionIndex, level)}
+                              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${question.difficulty === level
+                                ? 'ring-2 ring-offset-1'
+                                : 'hover:scale-105'
+                                }`}
+                              style={{
+                                backgroundColor: question.difficulty === level ? adaptiveTestService.getDifficultyBadgeStyle(level).backgroundColor : '#f3f4f6',
+                                color: question.difficulty === level ? adaptiveTestService.getDifficultyBadgeStyle(level).color : '#6b7280',
+                                borderColor: question.difficulty === level ? adaptiveTestService.getDifficultyBadgeStyle(level).borderColor : '#d1d5db',
+                                borderWidth: '1px',
+                                borderStyle: 'solid',
+                                // ringColor is not a valid style prop, handling via className if needed
+                              }}
+                            >
+                              {level.charAt(0).toUpperCase() + level.slice(1)}
+                            </button>
+                          ))}
                         </div>
-                        <p className="mt-1 text-xs text-gray-500">
-                          This affects adaptive question selection and scoring weights
-                        </p>
+                        <DifficultyBadge difficulty={question.difficulty} size="small" />
                       </div>
-                    )}
+                      <p className="mt-1 text-xs text-gray-500">
+                        {testData.isAdaptive
+                          ? 'This affects adaptive question selection and scoring weights'
+                          : 'Set the difficulty level for this question'
+                        }
+                      </p>
+                    </div>
 
                     {/* Question Text */}
                     <div>

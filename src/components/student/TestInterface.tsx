@@ -992,36 +992,6 @@ const TestInterface: React.FC = () => {
           </div>
 
           {/* Adaptive Test Info */}
-          {isAdaptiveMode && adaptiveState && (
-            <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4 mb-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-2">
-                    <Target className="h-5 w-5 text-purple-600" />
-                    <span className="text-sm font-medium text-gray-700">Adaptive Mode</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm text-gray-600">Current Level:</span>
-                    <DifficultyBadge difficulty={adaptiveState.currentDifficulty} size="small" />
-                  </div>
-                </div>
-                <div className="flex items-center space-x-6 text-sm">
-                  <div className="text-center">
-                    <div className="font-semibold text-green-600">✓ {adaptiveState.correctStreak}</div>
-                    <div className="text-xs text-gray-500">Streak</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="font-semibold text-blue-600">{adaptiveState.weightedScore}</div>
-                    <div className="text-xs text-gray-500">Weighted Score</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="font-semibold text-purple-600">{adaptiveState?.askedQuestionIds?.length || 0}</div>
-                    <div className="text-xs text-gray-500">Answered</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
 
           <div className="flex items-center justify-between text-sm text-gray-600">
             <span>Question {currentQuestionIndex + 1} of {questions.length}</span>
@@ -1038,16 +1008,9 @@ const TestInterface: React.FC = () => {
 
         {/* Question Card */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-          {/* Question Header with Difficulty Badge */}
+          {/* Question Header */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
-              {isAdaptiveMode && currentQuestion && (
-                <DifficultyBadge
-                  difficulty={currentQuestion.difficulty}
-                  size="medium"
-                  className="animate-pulse"
-                />
-              )}
               <span className="text-sm font-medium text-gray-600">
                 {isAdaptiveMode
                   ? `Adaptive Question #${(adaptiveState?.askedQuestionIds?.length || 0) + 1}`
