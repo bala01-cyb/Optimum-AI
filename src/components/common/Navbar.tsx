@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, User, Trophy, Menu, X, Moon, Sun } from 'lucide-react';
+import { LogOut, User, Trophy, Menu, X, Moon, Sun, Mail, Info } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { ref, get } from 'firebase/database';
 import { database } from '../../lib/firebase';
