@@ -9,10 +9,10 @@ const AboutUs: React.FC = () => {
             <Navbar />
             {/* Hero Section */}
             <div className="relative overflow-hidden">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-24">
                     <div className="text-center">
-                        <img src="/favicon.png" alt="OPTIMUM" className="mx-auto h-20 w-20 mb-6" />
-                        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-6">
+                        <img src="/favicon.png" alt="OPTIMUM" className="mx-auto h-16 w-16 sm:h-20 sm:w-20 mb-4 sm:mb-6" />
+                        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-4 sm:mb-6">
                             About OPTIMUM
                         </h1>
                         <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
@@ -23,10 +23,10 @@ const AboutUs: React.FC = () => {
             </div>
 
             {/* Mission Section */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+                <div className="grid md:grid-cols-2 gap-8 sm:gap-12 items-center">
                     <div>
-                        <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">Our Mission</h2>
+                        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-6">Our Mission</h2>
                         <p className="text-lg text-slate-600 dark:text-slate-300 mb-4">
                             OPTIMUM is an innovative educational platform designed to transform how students prepare for aptitude tests and assessments. We leverage cutting-edge AI technology to create personalized learning experiences that adapt to each student's unique needs.
                         </p>
@@ -34,7 +34,7 @@ const AboutUs: React.FC = () => {
                             Our platform combines the power of adaptive testing with AI-generated practice questions, providing students with unlimited, high-quality study materials tailored to their skill level and learning pace.
                         </p>
                     </div>
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className="grid grid-cols-2 gap-4 sm:gap-6">
                         <div className="card-modern p-6 text-center">
                             <Target className="h-12 w-12 text-purple-600 mx-auto mb-4" />
                             <h3 className="font-bold text-slate-900 dark:text-white mb-2">Adaptive Testing</h3>
@@ -104,7 +104,7 @@ const AboutUs: React.FC = () => {
                     </p>
                     <Link
                         to="/register"
-                        className="inline-flex items-center space-x-2 px-8 py-4 bg-white text-purple-600 font-semibold rounded-xl hover:bg-purple-50 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                        className="btn-touch-lg inline-flex items-center space-x-2 px-6 py-4 sm:px-8 sm:py-4 bg-white text-purple-600 font-semibold rounded-xl hover:bg-purple-50 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
                     >
                         <span>Start Learning Today</span>
                         <ArrowRight className="h-5 w-5" />

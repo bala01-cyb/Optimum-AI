@@ -220,7 +220,7 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 mb-8 stagger-children">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-mobile mb-6 sm:mb-8 stagger-children">
           <div className="card-modern p-3 sm:p-6 hover-lift">
             <div className="flex items-center">
               <div className="p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
@@ -400,7 +400,7 @@ const Dashboard: React.FC = () => {
         href="https://optimum-five.vercel.app"
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 z-50 flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 animate-fadeInUp"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex items-center space-x-2 px-4 py-3 sm:px-6 sm:py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 animate-fadeInUp btn-touch no-select"
         title="Practice with AI"
       >
         <Sparkles className="h-5 w-5" />

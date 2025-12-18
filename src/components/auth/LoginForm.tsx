@@ -52,8 +52,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ isAdmin = false }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-gray-900 dark:to-black flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 transition-all duration-300">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-gray-900 dark:to-black flex items-center justify-center py-8 px-4 sm:py-12 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-6 sm:space-y-8 bg-white dark:bg-gray-900 mobile-p-safe rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 transition-all duration-300">
         {/* Header with OPTIMUM branding */}
         <div className="text-center">
           <img src="/favicon.png" alt="OPTIMUM" className="mx-auto h-16 w-16 mb-4" />
@@ -102,7 +102,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ isAdmin = false }) => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="input-focus pl-12 block w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 focus:border-blue-500 dark:focus:border-blue-400 bg-white/80 dark:bg-slate-800/80 dark:text-slate-100 backdrop-blur-sm transition-all duration-300"
+                  className="input-focus input-mobile pl-12 block w-full px-4 py-3 sm:py-3 border border-slate-200 dark:border-slate-600 rounded-xl shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 focus:border-blue-500 dark:focus:border-blue-400 bg-white/80 dark:bg-slate-800/80 dark:text-slate-100 backdrop-blur-sm transition-all duration-300"
                   placeholder="Enter your email address"
                 />
               </div>
@@ -120,7 +120,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ isAdmin = false }) => {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="input-focus pl-12 pr-12 block w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 focus:border-blue-500 dark:focus:border-blue-400 bg-white/80 dark:bg-slate-800/80 dark:text-slate-100 backdrop-blur-sm transition-all duration-300"
+                  className="input-focus input-mobile pl-12 pr-12 block w-full px-4 py-3 sm:py-3 border border-slate-200 dark:border-slate-600 rounded-xl shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 focus:border-blue-500 dark:focus:border-blue-400 bg-white/80 dark:bg-slate-800/80 dark:text-slate-100 backdrop-blur-sm transition-all duration-300"
                   placeholder="Enter your password"
                 />
                 <button
@@ -141,7 +141,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ isAdmin = false }) => {
           <button
             type="submit"
             disabled={loading}
-            className="btn-professional animate-fadeInUp stagger-5 group relative w-full flex justify-center py-4 px-6 border border-transparent text-base font-semibold rounded-xl text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300"
+            className="btn-professional btn-touch-lg animate-fadeInUp stagger-5 group relative w-full flex justify-center py-4 px-6 border border-transparent text-base font-semibold rounded-xl text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 touch-feedback"
           >
             {loading ? (
               <>

@@ -145,8 +145,8 @@ const RegisterForm: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-gray-900 dark:to-black flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-6 bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 transition-all duration-300">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-gray-900 dark:to-black flex items-center justify-center py-8 px-4 sm:py-12 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-4 sm:space-y-6 bg-white dark:bg-gray-900 mobile-p-safe rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 transition-all duration-300">
         {/* Header with OPTIMUM branding */}
         <div className="text-center">
           <img src="/favicon.png" alt="OPTIMUM" className="mx-auto h-16 w-16 mb-4" />
@@ -187,7 +187,7 @@ const RegisterForm: React.FC = () => {
                   required
                   value={formData.name}
                   onChange={handleChange}
-                  className="pl-10 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-gray-800 dark:text-gray-100 transition-all duration-300"
+                  className="input-mobile pl-10 block w-full px-3 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-gray-800 dark:text-gray-100 transition-all duration-300"
                   placeholder="Enter your full name"
                 />
               </div>
@@ -206,7 +206,7 @@ const RegisterForm: React.FC = () => {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className="pl-10 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-gray-800 dark:text-gray-100 transition-all duration-300"
+                  className="input-mobile pl-10 block w-full px-3 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-gray-800 dark:text-gray-100 transition-all duration-300"
                   placeholder="Enter your email"
                 />
               </div>
@@ -244,7 +244,7 @@ const RegisterForm: React.FC = () => {
                   required
                   value={formData.studentType}
                   onChange={handleChange}
-                  className="pl-10 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-gray-800 dark:text-gray-100 transition-all duration-300"
+                  className="select-mobile pl-10 block w-full px-3 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-gray-800 dark:text-gray-100 transition-all duration-300"
                 >
                   <option value="" className="text-gray-400 dark:text-gray-500">Select student type</option>
                   <option value="school" className="text-gray-900 dark:text-gray-100">School Student</option>
@@ -267,7 +267,7 @@ const RegisterForm: React.FC = () => {
                     required
                     value={formData.class}
                     onChange={handleChange}
-                    className="pl-10 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-gray-800 dark:text-gray-100 transition-all duration-300"
+                    className="select-mobile pl-10 block w-full px-3 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-gray-800 dark:text-gray-100 transition-all duration-300"
                   >
                     <option value="" className="text-gray-400 dark:text-gray-500">Select your class</option>
                     {[5, 6, 7, 8, 9, 10, 11, 12].map(classNum => (
@@ -294,7 +294,7 @@ const RegisterForm: React.FC = () => {
                     required
                     value={formData.department}
                     onChange={handleChange}
-                    className="pl-10 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-gray-800 dark:text-gray-100 transition-all duration-300"
+                    className="select-mobile pl-10 block w-full px-3 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-gray-800 dark:text-gray-100 transition-all duration-300"
                   >
                     <option value="" className="text-gray-400 dark:text-gray-500">Select your department</option>
                     {departments.map(dept => (
@@ -369,7 +369,7 @@ const RegisterForm: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="btn-touch-lg group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors touch-feedback"
           >
             {loading ? 'Creating Account...' : 'Create Account'}
           </button>

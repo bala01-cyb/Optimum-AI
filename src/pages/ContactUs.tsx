@@ -68,7 +68,7 @@ const ContactUs: React.FC = () => {
 
                 <div className="grid md:grid-cols-2 gap-12">
                     {/* Contact Form */}
-                    <div className="card-modern p-8">
+                    <div className="card-modern mobile-p-safe">
                         <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Send us a Message</h2>
 
                         {status === 'success' && (
@@ -99,7 +99,7 @@ const ContactUs: React.FC = () => {
                                         required
                                         value={formData.name}
                                         onChange={handleChange}
-                                        className="pl-12 block w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 bg-white dark:bg-slate-800 dark:text-white transition-all"
+                                        className="input-mobile pl-12 block w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 bg-white dark:bg-slate-800 dark:text-white transition-all"
                                         placeholder="Enter your name"
                                     />
                                 </div>
@@ -118,7 +118,7 @@ const ContactUs: React.FC = () => {
                                         required
                                         value={formData.email}
                                         onChange={handleChange}
-                                        className="pl-12 block w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 bg-white dark:bg-slate-800 dark:text-white transition-all"
+                                        className="input-mobile pl-12 block w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 bg-white dark:bg-slate-800 dark:text-white transition-all"
                                         placeholder="your.email@example.com"
                                     />
                                 </div>
@@ -162,7 +162,7 @@ const ContactUs: React.FC = () => {
                             <button
                                 type="submit"
                                 disabled={status === 'sending'}
-                                className="w-full flex items-center justify-center space-x-2 px-6 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-purple-500/50 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200"
+                                className="btn-touch-lg w-full flex items-center justify-center space-x-2 px-6 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-purple-500/50 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200"
                             >
                                 {status === 'sending' ? (
                                     <>

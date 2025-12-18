@@ -79,17 +79,16 @@ const TestCard: React.FC<TestCardProps> = ({ test, status, completedResult }) =>
   const isClickable = status === 'active' || status === 'completed';
 
   return (
-    <div 
-      className={`card-modern p-4 sm:p-6 h-full flex flex-col ${
-        isClickable ? 'cursor-pointer transform hover:scale-[1.02] hover:-translate-y-1' : ''
-      }`}
+    <div
+      className={`card-modern card-padding-mobile h-full flex flex-col ${isClickable ? 'cursor-pointer transform hover:scale-[1.02] hover:-translate-y-1 touch-feedback' : ''
+        }`}
       onClick={isClickable ? handleCardClick : undefined}
     >
-      <div className="flex items-start justify-between mb-4 gap-3">
+      <div className="flex items-start justify-between mb-3 sm:mb-4 gap-2 sm:gap-3">
         <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white line-clamp-2 flex-1 min-w-0">
           {test.title}
         </h3>
-        <span className={`inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${getStatusColor()}`}>
+        <span className={`inline-flex items-center px-2 sm:px-2.5 py-1 rounded-full text-xs font-medium flex-shrink-0 ${getStatusColor()}`}>
           {getStatusIcon()}
           <span className="ml-1 capitalize hidden sm:inline">{status}</span>
         </span>
@@ -122,21 +121,20 @@ const TestCard: React.FC<TestCardProps> = ({ test, status, completedResult }) =>
         <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Your Score:</span>
-            <span className={`text-lg font-bold ${
-              (completedResult.score / completedResult.totalQuestions) * 100 >= 70 
-                ? 'text-green-600 dark:text-green-400' 
+            <span className={`text-lg font-bold ${(completedResult.score / completedResult.totalQuestions) * 100 >= 70
+                ? 'text-green-600 dark:text-green-400'
                 : (completedResult.score / completedResult.totalQuestions) * 100 >= 50
                   ? 'text-yellow-600 dark:text-yellow-400'
                   : 'text-red-600 dark:text-red-400'
-            }`}>
+              }`}>
               {completedResult.score}/{completedResult.totalQuestions}
             </span>
           </div>
           <div className="progress-bar mt-3">
-            <div 
+            <div
               className="progress-bar-fill"
-              style={{ 
-                width: `${(completedResult.score / completedResult.totalQuestions) * 100}%` 
+              style={{
+                width: `${(completedResult.score / completedResult.totalQuestions) * 100}%`
               }}
             ></div>
           </div>
@@ -144,7 +142,7 @@ const TestCard: React.FC<TestCardProps> = ({ test, status, completedResult }) =>
       )}
 
       {status === 'active' && (
-        <button className="w-full mt-4 btn-modern btn-primary-modern">
+        <button className="w-full mt-4 btn-modern btn-primary-modern btn-touch">
           <Play className="h-4 w-4" />
           Start Test
         </button>
