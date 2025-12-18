@@ -5,6 +5,7 @@ import { database } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import TestCarousel from '../common/TestCarousel';
 import Navbar from '../common/Navbar';
+import { SkeletonDashboard } from '../common/LoadingSkeleton';
 
 interface Test {
   id: string;
@@ -171,11 +172,8 @@ const Dashboard: React.FC = () => {
     return (
       <div className="min-h-screen">
         <Navbar />
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center card-modern p-8">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-warp-primary mx-auto"></div>
-            <p className="mt-4 text-slate-600 dark:text-gray-300 font-medium">Loading dashboard...</p>
-          </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+          <SkeletonDashboard />
         </div>
       </div>
     );
@@ -185,9 +183,9 @@ const Dashboard: React.FC = () => {
     <div className="min-h-screen">
       <Navbar />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 page-enter">
         {/* Welcome Section */}
-        <div className="mb-6 sm:mb-8 card-modern p-4 sm:p-6 glass">
+        <div className="mb-6 sm:mb-8 card-modern p-4 sm:p-6 glass card-fade-in">
           <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-4">
             <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl flex items-center justify-center flex-shrink-0 float-animation overflow-hidden bg-gray-100">
               {profilePictureUrl ? (
@@ -222,8 +220,8 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 mb-8">
-          <div className="card-modern p-3 sm:p-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 mb-8 stagger-children">
+          <div className="card-modern p-3 sm:p-6 hover-lift">
             <div className="flex items-center">
               <div className="p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
                 <Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 dark:text-blue-400" />
@@ -235,7 +233,7 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="card-modern p-3 sm:p-6">
+          <div className="card-modern p-3 sm:p-6 hover-lift">
             <div className="flex items-center">
               <div className="p-2 sm:p-3 bg-green-100 dark:bg-green-900/30 rounded-xl">
                 <CheckCircle className="h-6 w-6 sm:h-8 sm:w-8 text-green-600 dark:text-green-400" />
@@ -247,7 +245,7 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="card-modern p-3 sm:p-6">
+          <div className="card-modern p-3 sm:p-6 hover-lift">
             <div className="flex items-center">
               <div className="p-2 sm:p-3 bg-orange-100 dark:bg-orange-900/30 rounded-xl">
                 <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-orange-600 dark:text-orange-400" />
@@ -259,7 +257,7 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="card-modern p-3 sm:p-6">
+          <div className="card-modern p-3 sm:p-6 hover-lift">
             <div className="flex items-center">
               <div className="p-2 sm:p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-xl">
                 <Trophy className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-600 dark:text-yellow-400" />

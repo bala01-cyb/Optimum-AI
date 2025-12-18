@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, Building, Hash, AlertCircle, GraduationCap, Sparkles, UserPlus, Eye, EyeOff, CheckCircle } from 'lucide-react';
+import { Mail, Lock, User, Building, Hash, AlertCircle, GraduationCap, UserPlus, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 const RegisterForm: React.FC = () => {
@@ -9,14 +9,15 @@ const RegisterForm: React.FC = () => {
     password: '',
     confirmPassword: '',
     name: '',
-    department: '',
+    studentType: '', // 'school' or 'college'
+    class: '', // for school students (5-12)
+    department: '', // for college students
     registrationNumber: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [regNoError, setRegNoError] = useState('');
 
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -24,32 +25,21 @@ const RegisterForm: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
 
+    // Clear department/class when student type changes
+    if (name === 'studentType') {
+      setFormData(prev => ({
+        ...prev,
+        studentType: value,
+        class: '',
+        department: ''
+      }));
+      return;
+    }
+
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
-
-    // Simple validation for registration number - only check if it starts with 4207
-    if (name === 'registrationNumber') {
-      validateRegNo(value);
-    }
-  };
-
-  const validateRegNo = (regNo: string) => {
-    setRegNoError(''); // Clear previous errors
-
-    if (!regNo.trim()) {
-      setRegNoError(''); // Clear error for empty field
-      return;
-    }
-
-    // Only check if registration number starts with 4207
-    const cleanRegNo = regNo.replace(/\D/g, '');
-
-    if (!cleanRegNo.startsWith('4207')) {
-      setRegNoError('Registration number must start with 4207');
-      return;
-    }
   };
 
   const validateForm = () => {
@@ -69,13 +59,17 @@ const RegisterForm: React.FC = () => {
       return false;
     }
 
-    // Only check if there's a validation error
-    if (regNoError) {
-      setError(regNoError);
+    if (!formData.studentType) {
+      setError('Student type is required');
       return false;
     }
 
-    if (!formData.department) {
+    if (formData.studentType === 'school' && !formData.class) {
+      setError('Class is required');
+      return false;
+    }
+
+    if (formData.studentType === 'college' && !formData.department) {
       setError('Department is required');
       return false;
     }
@@ -96,7 +90,6 @@ const RegisterForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setRegNoError('');
 
     if (!validateForm()) {
       return;
@@ -105,13 +98,25 @@ const RegisterForm: React.FC = () => {
     setLoading(true);
 
     try {
-      // Register the user and wait for completion
-      await register(formData.email, formData.password, {
+      // Prepare registration data without undefined values
+      const registrationData: any = {
         name: formData.name,
-        department: formData.department,
+        studentType: formData.studentType as 'school' | 'college',
         registrationNumber: formData.registrationNumber,
-        role: 'student'
-      });
+        role: 'student' as const
+      };
+
+      // Only add class or department if they have values
+      if (formData.studentType === 'school' && formData.class) {
+        registrationData.class = formData.class;
+      } else if (formData.studentType === 'college' && formData.department) {
+        registrationData.department = formData.department;
+      }
+
+      console.log('Registration data being sent:', registrationData);
+
+      // Register the user and wait for completion
+      await register(formData.email, formData.password, registrationData);
 
       // Wait a bit for the AuthContext to update its state
       await new Promise(resolve => setTimeout(resolve, 1500));
@@ -220,49 +225,85 @@ const RegisterForm: React.FC = () => {
                   required
                   value={formData.registrationNumber}
                   onChange={handleChange}
-                  className={`pl-10 pr-10 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-gray-800 dark:text-gray-100 transition-all duration-300 ${regNoError ? 'border-red-300 bg-red-50 dark:border-red-600 dark:bg-red-900/20' : 'border-gray-300 dark:border-gray-600'
-                    }`}
-                  placeholder="Enter your registration number (e.g., 4207XXXXXX)"
+                  className="pl-10 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-gray-800 dark:text-gray-100 transition-all duration-300"
+                  placeholder="Enter your registration number"
                 />
-                {/* Validation Status Icons */}
-                <div className="absolute right-3 top-3 flex items-center">
-                  {regNoError && (
-                    <AlertCircle className="h-5 w-5 text-red-500" />
-                  )}
-                </div>
               </div>
-              {regNoError && (
-                <div className="mt-2 flex items-center space-x-1">
-                  <AlertCircle className="h-4 w-4 text-red-500" />
-                  <span className="text-sm text-red-600 dark:text-red-400">{regNoError}</span>
-                </div>
-              )}
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                Must start with 4207
-              </p>
             </div>
 
+            {/* Student Type Selector */}
             <div>
-              <label htmlFor="department" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Department
+              <label htmlFor="studentType" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Student Type
               </label>
               <div className="mt-1 relative">
-                <Building className="absolute left-3 top-3 h-5 w-5 text-gray-400 dark:text-gray-500" />
+                <GraduationCap className="absolute left-3 top-3 h-5 w-5 text-gray-400 dark:text-gray-500" />
                 <select
-                  id="department"
-                  name="department"
+                  id="studentType"
+                  name="studentType"
                   required
-                  value={formData.department}
+                  value={formData.studentType}
                   onChange={handleChange}
                   className="pl-10 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-gray-800 dark:text-gray-100 transition-all duration-300"
                 >
-                  <option value="" className="text-gray-400 dark:text-gray-500">Select your department</option>
-                  {departments.map(dept => (
-                    <option key={dept} value={dept} className="text-gray-900 dark:text-gray-100">{dept}</option>
-                  ))}
+                  <option value="" className="text-gray-400 dark:text-gray-500">Select student type</option>
+                  <option value="school" className="text-gray-900 dark:text-gray-100">School Student</option>
+                  <option value="college" className="text-gray-900 dark:text-gray-100">College Student</option>
                 </select>
               </div>
             </div>
+
+            {/* Conditional Field: Class for School Students */}
+            {formData.studentType === 'school' && (
+              <div className="card-slide-in">
+                <label htmlFor="class" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Class
+                </label>
+                <div className="mt-1 relative">
+                  <Hash className="absolute left-3 top-3 h-5 w-5 text-gray-400 dark:text-gray-500" />
+                  <select
+                    id="class"
+                    name="class"
+                    required
+                    value={formData.class}
+                    onChange={handleChange}
+                    className="pl-10 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-gray-800 dark:text-gray-100 transition-all duration-300"
+                  >
+                    <option value="" className="text-gray-400 dark:text-gray-500">Select your class</option>
+                    {[5, 6, 7, 8, 9, 10, 11, 12].map(classNum => (
+                      <option key={classNum} value={`Class ${classNum}`} className="text-gray-900 dark:text-gray-100">
+                        Class {classNum}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {/* Conditional Field: Department for College Students */}
+            {formData.studentType === 'college' && (
+              <div className="card-slide-in">
+                <label htmlFor="department" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Department
+                </label>
+                <div className="mt-1 relative">
+                  <Building className="absolute left-3 top-3 h-5 w-5 text-gray-400 dark:text-gray-500" />
+                  <select
+                    id="department"
+                    name="department"
+                    required
+                    value={formData.department}
+                    onChange={handleChange}
+                    className="pl-10 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-gray-800 dark:text-gray-100 transition-all duration-300"
+                  >
+                    <option value="" className="text-gray-400 dark:text-gray-500">Select your department</option>
+                    {departments.map(dept => (
+                      <option key={dept} value={dept} className="text-gray-900 dark:text-gray-100">{dept}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
 
             <div>
               <label htmlFor="password" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">

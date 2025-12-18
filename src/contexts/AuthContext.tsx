@@ -15,7 +15,9 @@ interface UserData {
   uid: string;
   email: string;
   name: string;
-  department?: string;
+  studentType?: 'school' | 'college';
+  class?: string; // for school students (Class 5-12)
+  department?: string; // for college students
   registrationNumber?: string;
   role: 'student' | 'admin';
 }
@@ -157,8 +159,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!data.name?.trim()) {
         throw new Error('Full name is required');
       }
-      if (!data.department?.trim()) {
-        throw new Error('Department is required');
+      if (!data.studentType) {
+        throw new Error('Student type is required');
+      }
+      if (data.studentType === 'school' && !data.class?.trim()) {
+        throw new Error('Class is required for school students');
+      }
+      if (data.studentType === 'college' && !data.department?.trim()) {
+        throw new Error('Department is required for college students');
       }
 
       console.log('Creating authentication user...');
@@ -172,22 +180,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         uid: createdUser.uid,
         email: createdUser.email!,
         name: data.name.trim(),
-        department: data.department.trim(),
+        studentType: data.studentType,
         registrationNumber: data.registrationNumber.trim(),
         role: data.role,
       };
 
+      // Add class or department based on student type (avoid undefined values)
+      if (data.studentType === 'school' && data.class?.trim()) {
+        newUserData.class = data.class.trim();
+      }
+      if (data.studentType === 'college' && data.department?.trim()) {
+        newUserData.department = data.department.trim();
+      }
+
       console.log('Saving user data to database...');
+      console.log('User data object:', JSON.stringify(newUserData, null, 2));
+
       await retryDatabaseOperation(async () => {
         const userRef = ref(database, `users/${createdUser!.uid}`);
         await set(userRef, newUserData);
       });
 
       console.log('Registration completed successfully:', newUserData);
-      
+
       // Immediately update the context state to avoid loading issues
       setUserData(newUserData);
-      
+
       return newUserData;
 
     } catch (error: any) {
@@ -232,11 +250,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Retry mechanism for email verification
       const maxRetries = 3;
       let lastError: any;
-      
+
       for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
           console.log(`Attempting email verification (attempt ${attempt}/${maxRetries})`);
-          
+
           // First try without action code settings for compatibility
           if (attempt === 1) {
             await sendEmailVerification(currentUser);
@@ -248,21 +266,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             };
             await sendEmailVerification(currentUser, actionCodeSettings);
           }
-          
+
           console.log('Email verification sent successfully');
           return; // Success, exit the retry loop
-          
+
         } catch (retryError: any) {
           lastError = retryError;
           console.error(`Email verification attempt ${attempt} failed:`, retryError);
-          
+
           // Don't retry for certain error codes
-          if (retryError.code === 'auth/too-many-requests' || 
-              retryError.code === 'auth/user-disabled' ||
-              retryError.code === 'auth/invalid-email') {
+          if (retryError.code === 'auth/too-many-requests' ||
+            retryError.code === 'auth/user-disabled' ||
+            retryError.code === 'auth/invalid-email') {
             break;
           }
-          
+
           // Wait before retrying (exponential backoff)
           if (attempt < maxRetries) {
             const delay = Math.pow(2, attempt) * 1000; // 2s, 4s, 8s
@@ -271,13 +289,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         }
       }
-      
+
       // If we get here, all retries failed
       throw lastError;
-      
+
     } catch (error: any) {
       console.error('Error sending email verification:', error);
-      
+
       // Enhanced error handling
       if (error.code === 'auth/too-many-requests') {
         throw new Error('Too many verification emails sent. Please wait a few minutes before requesting another.');
@@ -292,7 +310,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else if (error.message?.includes('503')) {
         throw new Error('Firebase service is temporarily unavailable. Please try again in a few minutes.');
       }
-      
+
       throw new Error(`Unable to send verification email: ${error.message || 'Unknown error'}. Please try again later.`);
     }
   };
