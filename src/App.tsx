@@ -6,6 +6,7 @@ import ProtectedRoute from './components/common/ProtectedRoute';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import LoginForm from './components/auth/LoginForm';
 import AdminLoginForm from './components/auth/AdminLoginForm';
+import AdminRegisterForm from './components/auth/AdminRegisterForm';
 import RegisterForm from './components/auth/RegisterForm';
 import EmailVerification from './components/auth/EmailVerification';
 import Dashboard from './components/student/Dashboard';
@@ -130,6 +131,14 @@ function App() {
                   element={
                     <ProtectedRoute requireAdmin>
                       <AdminDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/create-admin"
+                  element={
+                    <ProtectedRoute requireAdmin>
+                      <AdminRegisterForm />
                     </ProtectedRoute>
                   }
                 />

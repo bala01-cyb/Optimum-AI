@@ -159,14 +159,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!data.name?.trim()) {
         throw new Error('Full name is required');
       }
-      if (!data.studentType) {
-        throw new Error('Student type is required');
-      }
-      if (data.studentType === 'school' && !data.class?.trim()) {
-        throw new Error('Class is required for school students');
-      }
-      if (data.studentType === 'college' && !data.department?.trim()) {
-        throw new Error('Department is required for college students');
+
+      // Only validate studentType for student accounts, not admin accounts
+      if (data.role === 'student') {
+        if (!data.studentType) {
+          throw new Error('Student type is required');
+        }
+        if (data.studentType === 'school' && !data.class?.trim()) {
+          throw new Error('Class is required for school students');
+        }
+        if (data.studentType === 'college' && !data.department?.trim()) {
+          throw new Error('Department is required for college students');
+        }
       }
 
       console.log('Creating authentication user...');
@@ -180,12 +184,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         uid: createdUser.uid,
         email: createdUser.email!,
         name: data.name.trim(),
-        studentType: data.studentType,
         registrationNumber: data.registrationNumber.trim(),
         role: data.role,
       };
 
-      // Add class or department based on student type (avoid undefined values)
+      // Only add optional fields if they have values (avoid undefined in Firebase)
+      if (data.studentType) {
+        newUserData.studentType = data.studentType;
+      }
       if (data.studentType === 'school' && data.class?.trim()) {
         newUserData.class = data.class.trim();
       }

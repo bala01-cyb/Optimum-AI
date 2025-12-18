@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { ref, get } from 'firebase/database';
-import { Plus, Users, FileText, BarChart3, Calendar, Clock } from 'lucide-react';
+import { Plus, Users, FileText, BarChart3, Calendar, Clock, Shield } from 'lucide-react';
 import { database } from '../../lib/firebase';
 import Navbar from '../common/Navbar';
 import CreateTestModal from './CreateTestModal';
 import TestManagement from './TestManagement';
 import ResultsView from './ResultsView';
 import StudentListModal from './StudentListModal';
+import AdminManagement from './AdminManagement';
 
 interface Test {
   id: string;
@@ -29,7 +30,7 @@ const AdminDashboard: React.FC = () => {
   const [tests, setTests] = useState<Test[]>([]);
   const [totalStudents, setTotalStudents] = useState(0);
   const [totalResponses, setTotalResponses] = useState(0);
-  const [activeTab, setActiveTab] = useState<'overview' | 'tests' | 'results'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'tests' | 'results' | 'admins'>('overview');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [students, setStudents] = useState<Student[]>([]);
@@ -62,7 +63,7 @@ const AdminDashboard: React.FC = () => {
         const studentUsers = Object.values(usersData).filter((user: any) => user.role === 'student');
         const studentCount = studentUsers.length;
         setTotalStudents(studentCount);
-        
+
         // Fetch students array for the modal
         const studentsArray = Object.entries(usersData)
           .filter(([_, user]: [string, any]) => user.role === 'student')
@@ -75,17 +76,17 @@ const AdminDashboard: React.FC = () => {
       const responsesSnapshot = await get(responsesRef);
       if (responsesSnapshot.exists()) {
         const responsesData = responsesSnapshot.val();
-        
+
         // Count total responses
         let totalCount = 0;
         Object.values(responsesData).forEach((testResponses: any) => {
           totalCount += Object.keys(testResponses).length;
         });
         setTotalResponses(totalCount);
-        
+
         // Transform responses data to student-centric format for progress tracking
         const studentProgressData: Record<string, any> = {};
-        
+
         Object.entries(responsesData).forEach(([testId, testResponses]: [string, any]) => {
           Object.entries(testResponses).forEach(([studentId, responseData]: [string, any]) => {
             if (!studentProgressData[studentId]) {
@@ -94,7 +95,7 @@ const AdminDashboard: React.FC = () => {
             studentProgressData[studentId][testId] = responseData;
           });
         });
-        
+
         setStudentProgress(studentProgressData);
       }
     } catch (error) {
@@ -150,7 +151,7 @@ const AdminDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-themed transition-colors duration-300">
       <Navbar />
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
         <div className="mb-6 sm:mb-8 card-modern p-4 sm:p-6 glass">
@@ -184,33 +185,39 @@ const AdminDashboard: React.FC = () => {
           <nav className="-mb-px flex space-x-8">
             <button
               onClick={() => setActiveTab('overview')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm transition-all duration-300 ${
-                activeTab === 'overview'
+              className={`py-2 px-1 border-b-2 font-medium text-sm transition-all duration-300 ${activeTab === 'overview'
                   ? 'border-current text-themed'
                   : 'border-transparent text-themed-secondary hover:text-themed hover:border-themed'
-              }`}
+                }`}
             >
               Overview
             </button>
             <button
               onClick={() => setActiveTab('tests')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm transition-all duration-300 ${
-                activeTab === 'tests'
+              className={`py-2 px-1 border-b-2 font-medium text-sm transition-all duration-300 ${activeTab === 'tests'
                   ? 'border-current text-themed'
                   : 'border-transparent text-themed-secondary hover:text-themed hover:border-themed'
-              }`}
+                }`}
             >
               Test Management
             </button>
             <button
               onClick={() => setActiveTab('results')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm transition-all duration-300 ${
-                activeTab === 'results'
+              className={`py-2 px-1 border-b-2 font-medium text-sm transition-all duration-300 ${activeTab === 'results'
                   ? 'border-current text-themed'
                   : 'border-transparent text-themed-secondary hover:text-themed hover:border-themed'
-              }`}
+                }`}
             >
               Results & Analytics
+            </button>
+            <button
+              onClick={() => setActiveTab('admins')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm transition-all duration-300 ${activeTab === 'admins'
+                  ? 'border-current text-themed'
+                  : 'border-transparent text-themed-secondary hover:text-themed hover:border-themed'
+                }`}
+            >
+              Admin Management
             </button>
           </nav>
         </div>
@@ -218,64 +225,64 @@ const AdminDashboard: React.FC = () => {
         {/* Tab Content */}
         {activeTab === 'overview' && (
           <div>
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 mb-8">
-          <div 
-            className="card-modern p-3 sm:p-6 cursor-pointer transform hover:scale-[1.02] hover:-translate-y-1 transition-all duration-300" 
-            onClick={() => setActiveTab('tests')}
-          >
-            <div className="flex items-center">
-              <div className="p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
-                <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 dark:text-blue-400" />
+            {/* Stats Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 mb-8">
+              <div
+                className="card-modern p-3 sm:p-6 cursor-pointer transform hover:scale-[1.02] hover:-translate-y-1 transition-all duration-300"
+                onClick={() => setActiveTab('tests')}
+              >
+                <div className="flex items-center">
+                  <div className="p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
+                    <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div className="ml-2 sm:ml-4 min-w-0 flex-1">
+                    <p className="text-xs sm:text-sm font-semibold text-slate-600 dark:text-gray-400 truncate">Total Tests</p>
+                    <p className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-white">{tests.length}</p>
+                    <p className="text-xs text-slate-500 dark:text-gray-500 mt-1 truncate">Click to view all</p>
+                  </div>
+                </div>
               </div>
-              <div className="ml-2 sm:ml-4 min-w-0 flex-1">
-                <p className="text-xs sm:text-sm font-semibold text-slate-600 dark:text-gray-400 truncate">Total Tests</p>
-                <p className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-white">{tests.length}</p>
-                <p className="text-xs text-slate-500 dark:text-gray-500 mt-1 truncate">Click to view all</p>
-              </div>
-            </div>
-          </div>
 
-          <div 
-            className="card-modern p-3 sm:p-6 cursor-pointer transform hover:scale-[1.02] hover:-translate-y-1 transition-all duration-300" 
-            onClick={() => setShowStudentList(true)}
-          >
-            <div className="flex items-center">
-              <div className="p-2 sm:p-3 bg-green-100 dark:bg-green-900/30 rounded-xl">
-                <Users className="h-6 w-6 sm:h-8 sm:w-8 text-green-600 dark:text-green-400" />
+              <div
+                className="card-modern p-3 sm:p-6 cursor-pointer transform hover:scale-[1.02] hover:-translate-y-1 transition-all duration-300"
+                onClick={() => setShowStudentList(true)}
+              >
+                <div className="flex items-center">
+                  <div className="p-2 sm:p-3 bg-green-100 dark:bg-green-900/30 rounded-xl">
+                    <Users className="h-6 w-6 sm:h-8 sm:w-8 text-green-600 dark:text-green-400" />
+                  </div>
+                  <div className="ml-2 sm:ml-4 min-w-0 flex-1">
+                    <p className="text-xs sm:text-sm font-semibold text-slate-600 dark:text-gray-400 truncate">Total Students</p>
+                    <p className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-white">{totalStudents}</p>
+                    <p className="text-xs text-slate-500 dark:text-gray-500 mt-1 truncate">Click to view</p>
+                  </div>
+                </div>
               </div>
-              <div className="ml-2 sm:ml-4 min-w-0 flex-1">
-                <p className="text-xs sm:text-sm font-semibold text-slate-600 dark:text-gray-400 truncate">Total Students</p>
-                <p className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-white">{totalStudents}</p>
-                <p className="text-xs text-slate-500 dark:text-gray-500 mt-1 truncate">Click to view</p>
-              </div>
-            </div>
-          </div>
 
-          <div className="card-modern p-3 sm:p-6">
-            <div className="flex items-center">
-              <div className="p-2 sm:p-3 bg-purple-100 dark:bg-purple-900/30 rounded-xl">
-                <BarChart3 className="h-6 w-6 sm:h-8 sm:w-8 text-purple-600 dark:text-purple-400" />
+              <div className="card-modern p-3 sm:p-6">
+                <div className="flex items-center">
+                  <div className="p-2 sm:p-3 bg-purple-100 dark:bg-purple-900/30 rounded-xl">
+                    <BarChart3 className="h-6 w-6 sm:h-8 sm:w-8 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <div className="ml-2 sm:ml-4 min-w-0 flex-1">
+                    <p className="text-xs sm:text-sm font-semibold text-slate-600 dark:text-gray-400 truncate">Total Responses</p>
+                    <p className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-white">{totalResponses}</p>
+                  </div>
+                </div>
               </div>
-              <div className="ml-2 sm:ml-4 min-w-0 flex-1">
-                <p className="text-xs sm:text-sm font-semibold text-slate-600 dark:text-gray-400 truncate">Total Responses</p>
-                <p className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-white">{totalResponses}</p>
-              </div>
-            </div>
-          </div>
 
-          <div className="card-modern p-3 sm:p-6">
-            <div className="flex items-center">
-              <div className="p-2 sm:p-3 bg-orange-100 dark:bg-orange-900/30 rounded-xl">
-                <Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-orange-600 dark:text-orange-400" />
-              </div>
-              <div className="ml-2 sm:ml-4 min-w-0 flex-1">
-                <p className="text-xs sm:text-sm font-semibold text-slate-600 dark:text-gray-400 truncate">Active Tests</p>
-                <p className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-white">{getActiveTests().length}</p>
+              <div className="card-modern p-3 sm:p-6">
+                <div className="flex items-center">
+                  <div className="p-2 sm:p-3 bg-orange-100 dark:bg-orange-900/30 rounded-xl">
+                    <Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-orange-600 dark:text-orange-400" />
+                  </div>
+                  <div className="ml-2 sm:ml-4 min-w-0 flex-1">
+                    <p className="text-xs sm:text-sm font-semibold text-slate-600 dark:text-gray-400 truncate">Active Tests</p>
+                    <p className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-white">{getActiveTests().length}</p>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
 
             {/* Test Overview Cards */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -405,6 +412,10 @@ const AdminDashboard: React.FC = () => {
 
         {activeTab === 'results' && (
           <ResultsView />
+        )}
+
+        {activeTab === 'admins' && (
+          <AdminManagement />
         )}
       </div>
 
