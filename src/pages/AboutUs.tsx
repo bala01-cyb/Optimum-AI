@@ -79,7 +79,7 @@ const AboutUs: React.FC = () => {
                             </div>
                             <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">AI Question Generation</h3>
                             <p className="text-slate-600 dark:text-slate-400">
-                                Upload any PDF syllabus and let our AI generate unlimited practice questions. No more searching for study materials - create them instantly from your course content.
+                                Upload any PDF or Word document and let our AI generate unlimited practice questions. No more searching for study materials - create them instantly from your course content.
                             </p>
                         </div>
                         <div className="card-modern p-8">

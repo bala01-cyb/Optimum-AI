@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { SkeletonTestLoading } from '../common/LoadingSkeleton';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ref, get, set, runTransaction } from 'firebase/database';
 import { Clock, AlertTriangle, CheckCircle, RefreshCw, Shield, Calculator, X, Minus, Plus, Divide, Equal, TrendingUp, Target } from 'lucide-react';
@@ -117,7 +118,7 @@ const TestInterface: React.FC = () => {
     enableMobileProctoring: deviceIsMobile, // Enable mobile proctoring for mobile devices
     maxViolations: 3, // Same violation limit for both mobile and desktop
     onViolation: (type, count) => {
-      console.log(`Proctoring violation: ${type}, Total: ${count}`);
+      console.log(`Proctoring violation: ${type}, Total: ${count} `);
       setShowProctorWarning(true);
     },
     onMaxViolationsReached: () => {
@@ -155,7 +156,7 @@ const TestInterface: React.FC = () => {
       console.log('Clearing all test data for fresh start...');
 
       // Clear response data
-      const responseRef = ref(database, `responses/${testId}/${userData.uid}`);
+      const responseRef = ref(database, `responses / ${testId}/${userData.uid}`);
       await set(responseRef, null);
 
       // Clear user test state
@@ -860,13 +861,7 @@ const TestInterface: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center card-modern p-8">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-warp-primary mx-auto"></div>
-            <p className="mt-4 text-gray-600 dark:text-gray-300">Loading test...</p>
-            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Please wait while we prepare your test.</p>
-          </div>
-        </div>
+        <SkeletonTestLoading />
       </div>
     );
   }

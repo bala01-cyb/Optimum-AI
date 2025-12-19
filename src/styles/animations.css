@@ -396,3 +396,200 @@
 .transition-slow {
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* New Loading Animations for Enhanced Components */
+
+/* Shimmer effect for skeletons */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+/* Floating particles animation */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateY(-20px) translateX(10px);
+    opacity: 0.8;
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Progress bar animation */
+@keyframes progress {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-progress {
+  animation: progress 1.5s ease-in-out infinite;
+}
+
+/* Slow bounce for icons */
+@keyframes bounce-slow {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+.animate-bounce-slow {
+  animation: bounce-slow 2s ease-in-out infinite;
+}
+
+/* Slow spin for glowing effects */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-in;
+}
+
+/* Pulse glow animation for AI generation */
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.4),
+                0 0 40px rgba(59, 130, 246, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(139, 92, 246, 0.6),
+                0 0 60px rgba(59, 130, 246, 0.4);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+/* Sliding Squares Animations */
+@keyframes slide-square-1 {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  25% {
+    transform: translate(64px, 0) rotate(90deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(64px, 64px) rotate(180deg);
+    opacity: 1;
+  }
+  75% {
+    transform: translate(0, 64px) rotate(270deg);
+    opacity: 0.8;
+  }
+}
+
+@keyframes slide-square-2 {
+  0%, 100% {
+    transform: translate(64px, 0) rotate(0deg);
+    opacity: 1;
+  }
+  25% {
+    transform: translate(64px, 64px) rotate(90deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(0, 64px) rotate(180deg);
+    opacity: 1;
+  }
+  75% {
+    transform: translate(0, 0) rotate(270deg);
+    opacity: 0.8;
+  }
+}
+
+@keyframes slide-square-3 {
+  0%, 100% {
+    transform: translate(0, 64px) rotate(0deg);
+    opacity: 1;
+  }
+  25% {
+    transform: translate(0, 0) rotate(90deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(64px, 0) rotate(180deg);
+    opacity: 1;
+  }
+  75% {
+    transform: translate(64px, 64px) rotate(270deg);
+    opacity: 0.8;
+  }
+}
+
+@keyframes slide-square-4 {
+  0%, 100% {
+    transform: translate(64px, 64px) rotate(0deg);
+    opacity: 1;
+  }
+  25% {
+    transform: translate(0, 64px) rotate(90deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(0, 0) rotate(180deg);
+    opacity: 1;
+  }
+  75% {
+    transform: translate(64px, 0) rotate(270deg);
+    opacity: 0.8;
+  }
+}
+
+.animate-slide-square-1 {
+  animation: slide-square-1 2s ease-in-out infinite;
+}
+
+.animate-slide-square-2 {
+  animation: slide-square-2 2s ease-in-out infinite;
+}
+
+.animate-slide-square-3 {
+  animation: slide-square-3 2s ease-in-out infinite;
+}
+
+.animate-slide-square-4 {
+  animation: slide-square-4 2s ease-in-out infinite;
+}

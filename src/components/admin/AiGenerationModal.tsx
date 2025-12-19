@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { X, Sparkles, AlertCircle, Loader2, FileText, Zap, Upload } from 'lucide-react';
-import { extractTextFromPdf } from '../../utils/pdfUtils';
+import { extractTextFromDocument, isSupportedDocumentFormat } from '../../utils/documentUtils';
 import { aiService, GeneratedQuestion } from '../../services/aiService';
 import { DifficultyLevel } from '../../services/adaptiveTestService';
+import { SkeletonAIGeneration } from '../common/LoadingSkeleton';
 
 interface Question {
     question: string;
@@ -26,12 +27,13 @@ const AiGenerationModal: React.FC<AiGenerationModalProps> = ({ onClose, onQuesti
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [progress, setProgress] = useState('');
+    const [aiStage, setAiStage] = useState<'extracting' | 'generating' | 'formatting'>('extracting');
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = e.target.files?.[0];
         if (selectedFile) {
-            if (selectedFile.type !== 'application/pdf') {
-                setError('Please select a valid PDF file');
+            if (!isSupportedDocumentFormat(selectedFile)) {
+                setError('Please select a valid PDF, DOC, or DOCX file');
                 return;
             }
             setFile(selectedFile);
@@ -41,22 +43,24 @@ const AiGenerationModal: React.FC<AiGenerationModalProps> = ({ onClose, onQuesti
 
     const handleGenerate = async () => {
         if (!file) {
-            setError('Please select a PDF file first');
+            setError('Please select a document file first');
             return;
         }
 
         setLoading(true);
         setError('');
-        setProgress('Extracting text from PDF...');
+        setAiStage('extracting');
+        setProgress('Extracting text from document...');
 
         try {
-            // Step 1: Extract text from PDF
-            const text = await extractTextFromPdf(file);
+            // Step 1: Extract text from document (PDF or Word)
+            const text = await extractTextFromDocument(file);
 
             if (!text || text.trim().length < 100) {
-                throw new Error('PDF appears to be empty or contains insufficient text. Please ensure the PDF has readable text content.');
+                throw new Error('Document appears to be empty or contains insufficient text. Please ensure the document has readable text content.');
             }
 
+            setAiStage('generating');
             setProgress('Generating questions with AI...');
 
             // Step 2: Get API key from environment
@@ -70,9 +74,10 @@ const AiGenerationModal: React.FC<AiGenerationModalProps> = ({ onClose, onQuesti
             const generatedQuestions = await aiService.generateQuestionsFromText(text, apiKey, questionCount);
 
             if (generatedQuestions.length === 0) {
-                throw new Error('AI did not generate any questions. The PDF content may not be suitable for question generation.');
+                throw new Error('AI did not generate any questions. The document content may not be suitable for question generation.');
             }
 
+            setAiStage('formatting');
             setProgress('Formatting questions...');
 
             // Step 4: Convert to our Question format with difficulty levels
@@ -145,12 +150,12 @@ const AiGenerationModal: React.FC<AiGenerationModalProps> = ({ onClose, onQuesti
                     {/* File Upload Section */}
                     <div>
                         <label className="block text-sm font-medium text-themed-secondary mb-2">
-                            Upload PDF File
+                            Upload Document
                         </label>
                         <div className="relative">
                             <input
                                 type="file"
-                                accept=".pdf"
+                                accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                                 onChange={handleFileChange}
                                 disabled={loading}
                                 className="hidden"
@@ -174,8 +179,8 @@ const AiGenerationModal: React.FC<AiGenerationModalProps> = ({ onClose, onQuesti
                                 ) : (
                                     <div className="text-center">
                                         <Upload className="h-8 w-8 text-themed-muted mx-auto mb-2" />
-                                        <p className="text-sm font-medium text-themed-secondary">Click to upload PDF</p>
-                                        <p className="text-xs text-themed-muted mt-1">or drag and drop</p>
+                                        <p className="text-sm font-medium text-themed-secondary">Click to upload document</p>
+                                        <p className="text-xs text-themed-muted mt-1">PDF, DOC, or DOCX</p>
                                     </div>
                                 )}
                             </label>
@@ -199,7 +204,7 @@ const AiGenerationModal: React.FC<AiGenerationModalProps> = ({ onClose, onQuesti
                             placeholder="Enter number of questions"
                         />
                         <p className="mt-2 text-xs text-themed-muted">
-                            The AI will attempt to generate up to {questionCount} questions from the PDF content.
+                            The AI will attempt to generate up to {questionCount} questions from the document content.
                         </p>
                     </div>
 
@@ -214,12 +219,9 @@ const AiGenerationModal: React.FC<AiGenerationModalProps> = ({ onClose, onQuesti
                         </div>
                     )}
 
-                    {/* Progress Message */}
-                    {loading && progress && (
-                        <div className="flex items-center space-x-3 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                            <Loader2 className="h-5 w-5 text-blue-500 animate-spin flex-shrink-0" />
-                            <p className="text-sm text-blue-700 font-medium">{progress}</p>
-                        </div>
+                    {/* AI Generation Animation */}
+                    {loading && (
+                        <SkeletonAIGeneration stage={aiStage} />
                     )}
 
                     {/* Info Box */}
@@ -229,7 +231,7 @@ const AiGenerationModal: React.FC<AiGenerationModalProps> = ({ onClose, onQuesti
                             <div className="flex-1">
                                 <h4 className="text-sm font-semibold text-purple-900 mb-2">How it works</h4>
                                 <ul className="text-xs text-purple-700 space-y-1 list-disc list-inside">
-                                    <li>AI extracts text from your PDF</li>
+                                    <li>AI extracts text from your document (PDF or Word)</li>
                                     <li>Generates multiple-choice questions automatically</li>
                                     <li>Questions are balanced across difficulty levels</li>
                                     <li>You can edit questions after generation</li>
