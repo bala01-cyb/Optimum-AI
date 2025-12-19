@@ -24,6 +24,7 @@ interface TestCarouselProps {
   completedTests: Record<string, TestResult>;
   title: string;
   icon: React.ReactNode;
+  onTestClick?: (testId: string, status: string) => void;
 }
 
 const TestCarousel: React.FC<TestCarouselProps> = ({
@@ -31,7 +32,8 @@ const TestCarousel: React.FC<TestCarouselProps> = ({
   status,
   completedTests,
   title,
-  icon
+  icon,
+  onTestClick
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -60,8 +62,8 @@ const TestCarousel: React.FC<TestCarouselProps> = ({
       const container = scrollContainerRef.current;
       const cardWidth = 320; // Approximate width of a test card + gap
       const scrollAmount = cardWidth * 2; // Scroll 2 cards at a time
-      
-      const targetScrollLeft = direction === 'left' 
+
+      const targetScrollLeft = direction === 'left'
         ? container.scrollLeft - scrollAmount
         : container.scrollLeft + scrollAmount;
 
@@ -96,18 +98,17 @@ const TestCarousel: React.FC<TestCarouselProps> = ({
           {icon}
           {title}
         </h2>
-        
+
         {/* Navigation arrows - only show if there are more cards than visible */}
         {tests.length > 3 && (
           <div className="flex space-x-2">
             <button
               onClick={() => scroll('left')}
               disabled={!canScrollLeft || isScrolling}
-              className={`p-2 rounded-full border transition-all duration-200 ${
-                canScrollLeft && !isScrolling
+              className={`p-2 rounded-full border transition-all duration-200 ${canScrollLeft && !isScrolling
                   ? 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-400 dark:hover:border-gray-500 shadow-sm transform hover:scale-105'
                   : 'bg-gray-100 dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-600 cursor-not-allowed'
-              }`}
+                }`}
               aria-label="Scroll left"
             >
               <ChevronLeft className="h-5 w-5" />
@@ -115,11 +116,10 @@ const TestCarousel: React.FC<TestCarouselProps> = ({
             <button
               onClick={() => scroll('right')}
               disabled={!canScrollRight || isScrolling}
-              className={`p-2 rounded-full border transition-all duration-200 ${
-                canScrollRight && !isScrolling
+              className={`p-2 rounded-full border transition-all duration-200 ${canScrollRight && !isScrolling
                   ? 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-400 dark:hover:border-gray-500 shadow-sm transform hover:scale-105'
                   : 'bg-gray-100 dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-600 cursor-not-allowed'
-              }`}
+                }`}
               aria-label="Scroll right"
             >
               <ChevronRight className="h-5 w-5" />
@@ -146,6 +146,7 @@ const TestCarousel: React.FC<TestCarouselProps> = ({
                 test={test}
                 status={status}
                 completedResult={completedTests[test.id]}
+                onClick={onTestClick ? (testId, testStatus) => onTestClick(testId, testStatus) : undefined}
               />
             </div>
           ))}

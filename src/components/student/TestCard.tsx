@@ -22,9 +22,10 @@ interface TestCardProps {
   test: Test;
   status: 'upcoming' | 'active' | 'completed' | 'expired';
   completedResult?: TestResult;
+  onClick?: (testId: string, status: string) => void;
 }
 
-const TestCard: React.FC<TestCardProps> = ({ test, status, completedResult }) => {
+const TestCard: React.FC<TestCardProps> = ({ test, status, completedResult, onClick }) => {
   const navigate = useNavigate();
 
   const formatDate = (dateString: string) => {
@@ -69,6 +70,12 @@ const TestCard: React.FC<TestCardProps> = ({ test, status, completedResult }) =>
   };
 
   const handleCardClick = () => {
+    if (onClick) {
+      onClick(test.id, status);
+      return;
+    }
+
+    // Default behavior if no onClick provided
     if (status === 'active') {
       navigate(`/test/${test.id}`);
     } else if (status === 'completed' && completedResult) {
@@ -122,10 +129,10 @@ const TestCard: React.FC<TestCardProps> = ({ test, status, completedResult }) =>
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Your Score:</span>
             <span className={`text-lg font-bold ${(completedResult.score / completedResult.totalQuestions) * 100 >= 70
-                ? 'text-green-600 dark:text-green-400'
-                : (completedResult.score / completedResult.totalQuestions) * 100 >= 50
-                  ? 'text-yellow-600 dark:text-yellow-400'
-                  : 'text-red-600 dark:text-red-400'
+              ? 'text-green-600 dark:text-green-400'
+              : (completedResult.score / completedResult.totalQuestions) * 100 >= 50
+                ? 'text-yellow-600 dark:text-yellow-400'
+                : 'text-red-600 dark:text-red-400'
               }`}>
               {completedResult.score}/{completedResult.totalQuestions}
             </span>

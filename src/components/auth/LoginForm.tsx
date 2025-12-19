@@ -38,6 +38,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ isAdmin = false }) => {
         return;
       }
 
+      // Check for return URL from session storage
+      const returnUrl = sessionStorage.getItem('returnUrl');
+      if (returnUrl) {
+        sessionStorage.removeItem('returnUrl');
+        navigate(returnUrl, { replace: true });
+        return;
+      }
+
       // Redirect based on user role
       if (userData.role === 'admin') {
         navigate('/admin', { replace: true });

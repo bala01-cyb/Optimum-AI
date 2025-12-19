@@ -86,11 +86,7 @@ function App() {
                 {/* Student Routes */}
                 <Route
                   path="/dashboard"
-                  element={
-                    <ProtectedRoute>
-                      <Dashboard />
-                    </ProtectedRoute>
-                  }
+                  element={<Dashboard />}
                 />
                 <Route
                   path="/test/:testId"
@@ -144,7 +140,7 @@ function App() {
                 />
 
                 {/* Default Route */}
-                <Route path="/" element={<Navigate to="/login" replace />} />
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
               </Routes>
             </div>
           </Router>

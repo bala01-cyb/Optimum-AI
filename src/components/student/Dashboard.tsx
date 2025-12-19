@@ -6,6 +6,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import TestCarousel from '../common/TestCarousel';
 import Navbar from '../common/Navbar';
 import { SkeletonDashboard } from '../common/LoadingSkeleton';
+import { useNavigate } from 'react-router-dom';
 
 interface Test {
   id: string;
@@ -30,8 +31,9 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const { userData } = useAuth();
+  const { userData, currentUser } = useAuth();
   const [profilePictureUrl, setProfilePictureUrl] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchTests();
@@ -52,12 +54,17 @@ const Dashboard: React.FC = () => {
         setTests(testsArray);
       }
     } catch (error) {
-      console.error('Error fetching tests:', error);
+      // Silently handle permission errors for unauthenticated users
+      // Tests will remain empty and UI will show "No tests available"
+      console.log('Could not fetch tests (may require authentication):', error);
     }
   };
 
   const fetchCompletedTests = async () => {
-    if (!userData?.uid) return;
+    if (!userData?.uid) {
+      setLoading(false);
+      return;
+    }
 
     try {
       const responsesRef = ref(database, 'responses');
@@ -136,6 +143,23 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  // Handle test card click with auth check
+  const handleTestClick = (testId: string, status: string) => {
+    if (!currentUser) {
+      // Store the intended destination and redirect to login
+      sessionStorage.setItem('returnUrl', `/test/${testId}`);
+      navigate('/login');
+      return;
+    }
+
+    // User is authenticated, proceed with normal navigation
+    if (status === 'active') {
+      navigate(`/test/${testId}`);
+    } else if (status === 'completed' && completedTests[testId]) {
+      navigate(`/result/${testId}`);
+    }
+  };
+
   // Filter tests by category
   const filteredTests = selectedCategory === 'All' ? tests : tests.filter(test => test.category === selectedCategory);
 
@@ -186,37 +210,62 @@ const Dashboard: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 page-enter">
         {/* Welcome Section */}
         <div className="mb-6 sm:mb-8 card-modern p-4 sm:p-6 glass card-fade-in">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-4">
-            <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl flex items-center justify-center flex-shrink-0 float-animation overflow-hidden bg-gray-100">
-              {profilePictureUrl ? (
-                <img
-                  src={profilePictureUrl}
-                  alt={userData?.name || 'Profile'}
-                  className="h-full w-full object-cover"
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).style.display = 'none';
-                  }}
-                />
-              ) : (
-                <div className="h-full w-full gradient-animated flex items-center justify-center">
-                  <span className="text-2xl sm:text-3xl font-bold text-white">
-                    {userData?.name?.charAt(0).toUpperCase()}
-                  </span>
+          {currentUser ? (
+            <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-4">
+              <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl flex items-center justify-center flex-shrink-0 float-animation overflow-hidden bg-gray-100">
+                {profilePictureUrl ? (
+                  <img
+                    src={profilePictureUrl}
+                    alt={userData?.name || 'Profile'}
+                    className="h-full w-full object-cover"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <div className="h-full w-full gradient-animated flex items-center justify-center">
+                    <span className="text-2xl sm:text-3xl font-bold text-white">
+                      {userData?.name?.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div className="text-center sm:text-left flex-1 min-w-0">
+                <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold gradient-warp leading-tight">
+                  <span className="block sm:inline">Welcome back,</span>{' '}
+                  <span className="block sm:inline break-all sm:break-normal whitespace-normal">{userData?.name}</span>
+                </h1>
+                <div className="text-slate-600 dark:text-gray-300 mt-1 sm:mt-2 font-medium text-xs sm:text-base">
+                  <div className="sm:inline truncate sm:break-normal">{userData?.department}</div>
+                  <span className="hidden sm:inline mx-2">•</span>
+                  <div className="sm:inline text-xs sm:text-sm break-all sm:break-normal font-mono">{userData?.registrationNumber}</div>
                 </div>
-              )}
-            </div>
-            <div className="text-center sm:text-left flex-1 min-w-0">
-              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold gradient-warp leading-tight">
-                <span className="block sm:inline">Welcome back,</span>{' '}
-                <span className="block sm:inline break-all sm:break-normal whitespace-normal">{userData?.name}</span>
-              </h1>
-              <div className="text-slate-600 dark:text-gray-300 mt-1 sm:mt-2 font-medium text-xs sm:text-base">
-                <div className="sm:inline truncate sm:break-normal">{userData?.department}</div>
-                <span className="hidden sm:inline mx-2">•</span>
-                <div className="sm:inline text-xs sm:text-sm break-all sm:break-normal font-mono">{userData?.registrationNumber}</div>
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="text-center">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold gradient-warp leading-tight mb-4">
+                Welcome to OPTIMUM
+              </h1>
+              <p className="text-slate-600 dark:text-gray-300 text-sm sm:text-base md:text-lg mb-6">
+                Your AI-powered adaptive testing platform. Browse available tests below.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+                <button
+                  onClick={() => navigate('/login')}
+                  className="px-6 py-3 text-sm font-medium text-gray-700 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                >
+                  Login
+                </button>
+                <button
+                  onClick={() => navigate('/register')}
+                  className="px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                >
+                  Sign Up to Take Tests
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Stats Cards */}
@@ -357,6 +406,7 @@ const Dashboard: React.FC = () => {
           completedTests={completedTests}
           title="Active Tests"
           icon={<Clock className="h-5 w-5 text-orange-600 mr-2" />}
+          onTestClick={handleTestClick}
         />
 
         {/* Upcoming Tests Carousel */}
@@ -366,6 +416,7 @@ const Dashboard: React.FC = () => {
           completedTests={completedTests}
           title="Upcoming Tests"
           icon={<Calendar className="h-5 w-5 text-blue-600 mr-2" />}
+          onTestClick={handleTestClick}
         />
 
         {/* Completed Tests Carousel */}
@@ -375,6 +426,7 @@ const Dashboard: React.FC = () => {
           completedTests={completedTests}
           title="Completed Tests"
           icon={<CheckCircle className="h-5 w-5 text-green-600 mr-2" />}
+          onTestClick={handleTestClick}
         />
 
         {/* Expired Tests Carousel */}
@@ -384,6 +436,7 @@ const Dashboard: React.FC = () => {
           completedTests={completedTests}
           title="Expired Tests"
           icon={<XCircle className="h-5 w-5 text-red-600 mr-2" />}
+          onTestClick={handleTestClick}
         />
 
         {tests.length === 0 && (

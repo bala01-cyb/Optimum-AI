@@ -22,6 +22,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
   }
 
   if (!currentUser) {
+    // Store the current path to redirect back after login
+    sessionStorage.setItem('returnUrl', window.location.pathname);
     return <Navigate to="/login" replace />;
   }
 
