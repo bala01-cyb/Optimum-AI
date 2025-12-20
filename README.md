@@ -140,37 +140,37 @@
 
 ---
 
-## ✨ Features
+## Features
 
 ### Student Features
-- ✅ Adaptive test-taking with real-time difficulty adjustment
-- ✅ Performance dashboard with charts and analytics
-- ✅ Test history and detailed results
-- ✅ Answer review with color-coded feedback
-- ✅ Leaderboard with department filtering
-- ✅ Profile management with avatar selection
-- ✅ Dark mode support
-- ✅ Mobile-responsive design
+- Adaptive test-taking with real-time difficulty adjustment
+- Performance dashboard with charts and analytics
+- Test history and detailed results
+- Answer review with color-coded feedback
+- Leaderboard with department filtering
+- Profile management with avatar selection
+- Dark mode support
+- Mobile-responsive design
 
 ### Admin Features
-- ✅ Test creation with manual/AI/bulk import
-- ✅ Question bank management
-- ✅ Student performance analytics
-- ✅ Admin user management
-- ✅ Test configuration (adaptive/non-adaptive)
-- ✅ Difficulty assignment
-- ✅ Real-time test monitoring
-- ✅ PDF result generation
+- Test creation with manual/AI/bulk import
+- Question bank management
+- Student performance analytics
+- Admin user management
+- Test configuration (adaptive/non-adaptive)
+- Difficulty assignment
+- Real-time test monitoring
+- PDF result generation
 
 ### Technical Features
-- ✅ Real-time database synchronization
-- ✅ Custom sliding squares loader animation
-- ✅ Smooth page transitions
-- ✅ Optimistic UI updates
-- ✅ Error boundary handling
-- ✅ Protected routes
-- ✅ Session management
-- ✅ Performance optimization
+- Real-time database synchronization
+- Custom sliding squares loader animation
+- Smooth page transitions
+- Optimistic UI updates
+- Error boundary handling
+- Protected routes
+- Session management
+- Performance optimization
 
 ---
 
@@ -298,7 +298,7 @@ Application will be available at `http://localhost:5173`
 
 ---
 
-## ⚙️ Environment Configuration
+## Environment Configuration
 
 Create `.env` file in project root:
 
@@ -831,7 +831,7 @@ MIT License - see [LICENSE](LICENSE) file
 
 <div align="center">
 
-**Made with ❤️ by the OPTIMUM Team**
+**Made with by the OPTIMUM Team**
 
 [Report Bug](https://github.com/nareshAiNexus/Optimum-test/issues) · [Request Feature](https://github.com/nareshAiNexus/Optimum-test/issues)
 
