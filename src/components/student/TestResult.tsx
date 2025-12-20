@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ref, get } from 'firebase/database';
-import { Trophy, Clock, CheckCircle, XCircle, ArrowLeft, Loader2, AlertTriangle, Eye, EyeOff, TrendingUp, Download, X } from 'lucide-react';
+import { Trophy, Clock, CheckCircle, XCircle, ArrowLeft, AlertTriangle, Eye, EyeOff, TrendingUp, Download, X } from 'lucide-react';
 import { database } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import Navbar from '../common/Navbar';
@@ -278,9 +278,14 @@ const TestResult: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center card-modern p-8">
-          <Loader2 className="animate-spin h-12 w-12 text-blue-600 dark:text-warp-primary mx-auto" />
-          <p className="mt-4 text-gray-600 dark:text-gray-300">Loading results...</p>
+        <div className="text-center">
+          <div className="sliding-squares-loader mx-auto mb-4">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+          <p className="text-gray-600 dark:text-gray-400">Loading results...</p>
         </div>
       </div>
     );

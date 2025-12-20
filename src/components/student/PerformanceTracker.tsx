@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { TrendingUp, TrendingDown, Minus, Award, BarChart3, Target, Zap, Loader2 } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, Award, BarChart3, Target, Zap } from 'lucide-react';
 import {
     getPerformanceMetrics,
     PerformanceTrend,
@@ -45,10 +45,15 @@ const PerformanceTracker: React.FC<PerformanceTrackerProps> = ({
 
     if (loading) {
         return (
-            <div className="card-modern glass p-4 mb-4">
-                <div className="flex items-center justify-center py-4">
-                    <Loader2 className="animate-spin h-6 w-6 text-blue-600 dark:text-blue-400" />
-                    <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">Loading performance data...</span>
+            <div className="card-modern p-8">
+                <div className="flex flex-col items-center justify-center py-12">
+                    <div className="sliding-squares-loader mb-4">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                    <p className="text-gray-600 dark:text-gray-400">Loading...</p>
                 </div>
             </div>
         );

@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ref, get, set } from 'firebase/database';
-import { 
-  Github, 
-  Linkedin, 
-  Globe, 
-  Phone, 
-  Code, 
-  User, 
+import {
+  Github,
+  Linkedin,
+  Globe,
+  Phone,
+  Code,
+  User,
   Calendar,
   Trophy,
   TrendingUp,
@@ -92,7 +92,7 @@ const Profile: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  
+
   // Form states
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -103,11 +103,11 @@ const Profile: React.FC = () => {
   const [phone, setPhone] = useState('');
   const [leetcode, setLeetcode] = useState('');
   const [hackerrank, setHackerrank] = useState('');
-  
+
   // Avatar selection states
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [savingAvatar, setSavingAvatar] = useState(false);
-  
+
   // Validation states
   const [emailError, setEmailError] = useState('');
   const [regNoError, setRegNoError] = useState('');
@@ -117,7 +117,7 @@ const Profile: React.FC = () => {
     emailValid: false,
     regNoValid: false
   });
-  
+
   // Email change verification states
   const [pendingEmailChange, setPendingEmailChange] = useState(false);
   const [newPendingEmail, setNewPendingEmail] = useState('');
@@ -127,22 +127,22 @@ const Profile: React.FC = () => {
   const [showCodeInput, setShowCodeInput] = useState(false);
 
   const isOwnProfile = userData?.uid === userId;
-  
+
   // Handle sending verification email
   const handleSendEmailVerification = async () => {
     if (verificationCooldown > 0 || !email.trim()) return;
-    
+
     setVerificationSending(true);
     try {
       const result = await sendEmailChangeVerification(email.trim(), userId!);
-      
+
       if (!result.success) {
         if (result.requiresReauth) {
           const shouldLogout = confirm(
             result.message + '\n\n' +
             'Would you like to log out now? After logging back in, you can change your email.'
           );
-          
+
           if (shouldLogout) {
             await logout();
             navigate('/login');
@@ -152,7 +152,7 @@ const Profile: React.FC = () => {
         }
         return;
       }
-      
+
       // Success! Email sent
       if (result.message.includes('sent to')) {
         alert(`Verification code has been sent to ${email.trim()}!\n\nPlease check your inbox (and spam folder) and enter the 6-digit code below.`);
@@ -163,9 +163,9 @@ const Profile: React.FC = () => {
       setVerificationCooldown(60); // 60 second cooldown
       setNewPendingEmail(email.trim());
       setShowCodeInput(true);
-      
+
       console.log('Verification code sent to:', email.trim());
-      
+
     } catch (error) {
       console.error('Error changing email:', error);
       alert('Failed to change email. Please try again.');
@@ -173,25 +173,25 @@ const Profile: React.FC = () => {
       setVerificationSending(false);
     }
   };
-  
+
   // Handle verifying the code
   const handleVerifyCode = async () => {
     if (!verificationCode || verificationCode.length !== 6) {
       alert('Please enter the 6-digit verification code.');
       return;
     }
-    
+
     setSaving(true);
     try {
       const result = await verifyEmailChangeCode(verificationCode, userId!);
-      
+
       if (!result.success) {
         if (result.requiresReauth) {
           const shouldLogout = confirm(
             result.message + '\n\n' +
             'Would you like to log out now?'
           );
-          
+
           if (shouldLogout) {
             await logout();
             navigate('/login');
@@ -201,7 +201,7 @@ const Profile: React.FC = () => {
         }
         return;
       }
-      
+
       // Success!
       alert(result.message);
       setProfile(prev => prev ? { ...prev, email: newPendingEmail } : null);
@@ -209,10 +209,10 @@ const Profile: React.FC = () => {
       setNewPendingEmail('');
       setVerificationCode('');
       setShowCodeInput(false);
-      
+
       // Refresh page
       window.location.reload();
-      
+
     } catch (error: any) {
       console.error('Error verifying code:', error);
       alert('Failed to verify code: ' + (error.message || 'Unknown error'));
@@ -228,7 +228,7 @@ const Profile: React.FC = () => {
       fetchTests();
     }
   }, [userId]);
-  
+
   // Cooldown timer for verification email
   useEffect(() => {
     if (verificationCooldown > 0) {
@@ -269,13 +269,13 @@ const Profile: React.FC = () => {
       if (snapshot.exists()) {
         const allResponses = snapshot.val();
         const userResults: Record<string, TestResult> = {};
-        
+
         Object.entries(allResponses).forEach(([testId, testResponses]: [string, any]) => {
           if (testResponses[userId!]) {
             userResults[testId] = testResponses[userId!];
           }
         });
-        
+
         setTestResults(userResults);
       }
     } catch (error) {
@@ -306,18 +306,18 @@ const Profile: React.FC = () => {
   const validateEmail = async (newEmail: string) => {
     setEmailError('');
     setValidationResults(prev => ({ ...prev, emailValid: false }));
-    
+
     if (!newEmail.trim()) {
       return;
     }
-    
+
     // Basic email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(newEmail)) {
       setEmailError('Please enter a valid email address');
       return;
     }
-    
+
     // Check if email already exists (skip if it's the user's current email)
     if (newEmail !== profile?.email) {
       setEmailValidating(true);
@@ -337,16 +337,16 @@ const Profile: React.FC = () => {
       setValidationResults(prev => ({ ...prev, emailValid: true }));
     }
   };
-  
+
   // Registration number validation
   const validateRegNo = async (newRegNo: string) => {
     setRegNoError('');
     setValidationResults(prev => ({ ...prev, regNoValid: false }));
-    
+
     if (!newRegNo.trim() || !profile?.department) {
       return;
     }
-    
+
     setRegNoValidating(true);
     try {
       const validation = await validateRegistrationNumber(newRegNo, profile.department, userId);
@@ -364,31 +364,31 @@ const Profile: React.FC = () => {
 
   const handleSave = async () => {
     if (!isOwnProfile) return;
-    
+
     // Validate before saving
     if (emailError || regNoError) {
       alert('Please fix the validation errors before saving.');
       return;
     }
-    
+
     if (emailValidating || regNoValidating) {
       alert('Please wait for validation to complete.');
       return;
     }
-    
+
     const emailChanged = email.trim() !== profile?.email;
     const regNoChanged = registrationNumber.trim() !== profile?.registrationNumber;
-    
+
     if (emailChanged && !validationResults.emailValid) {
       alert('Please enter a valid email address.');
       return;
     }
-    
+
     if (regNoChanged && !validationResults.regNoValid) {
       alert('Please enter a valid registration number.');
       return;
     }
-    
+
     setSaving(true);
     try {
       // Handle email change - just warn user
@@ -396,7 +396,7 @@ const Profile: React.FC = () => {
         alert('To change your email, use the "Send Verification Email" and "I Have Verified" buttons below the email field.');
         return;
       }
-      
+
       // Update profile in database (email was already updated if it changed)
       const profileRef = ref(database, `users/${userId}`);
       const updatedData = {
@@ -412,13 +412,13 @@ const Profile: React.FC = () => {
         leetcode: leetcode.trim(),
         hackerrank: hackerrank.trim(),
       };
-      
+
       // Only update if email wasn't changed (to avoid overwriting the email update above)
       if (!emailChanged) {
         await set(profileRef, updatedData);
         console.log('Profile updated successfully');
       }
-      
+
       setProfile(prev => prev ? {
         ...prev,
         name: name.trim(),
@@ -431,14 +431,14 @@ const Profile: React.FC = () => {
         leetcode: leetcode.trim(),
         hackerrank: hackerrank.trim(),
       } : null);
-      
+
       setIsEditing(false);
-      
+
       // Show appropriate success message (only if email wasn't changed, as we already showed that message)
       if (!emailChanged) {
         alert('Profile updated successfully!');
       }
-      
+
     } catch (error) {
       console.error('Error updating profile:', error);
       alert('Failed to update profile. Please try again.');
@@ -479,12 +479,12 @@ const Profile: React.FC = () => {
   };
 
   const getPerformanceStats = () => {
-    const scores = Object.values(testResults).map(result => 
+    const scores = Object.values(testResults).map(result =>
       (result.score / result.totalQuestions) * 100
     );
-    
+
     if (scores.length === 0) return { average: 0, highest: 0, lowest: 0, total: 0 };
-    
+
     return {
       average: Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length),
       highest: Math.round(Math.max(...scores)),
@@ -494,17 +494,17 @@ const Profile: React.FC = () => {
   };
 
   const getPerformanceDistribution = () => {
-    const scores = Object.values(testResults).map(result => 
+    const scores = Object.values(testResults).map(result =>
       (result.score / result.totalQuestions) * 100
     );
-    
+
     const ranges = {
       'Excellent (90-100%)': scores.filter(s => s >= 90).length,
       'Good (80-89%)': scores.filter(s => s >= 80 && s < 90).length,
       'Average (70-79%)': scores.filter(s => s >= 70 && s < 80).length,
       'Below Average (<70%)': scores.filter(s => s < 70).length,
     };
-    
+
     return {
       labels: Object.keys(ranges),
       datasets: [
@@ -531,7 +531,7 @@ const Profile: React.FC = () => {
         ...profile,
         profilePictureUrl: randomAvatar.url,
       };
-      
+
       await set(profileRef, updatedProfile);
       setProfile(prev => prev ? {
         ...prev,
@@ -543,7 +543,7 @@ const Profile: React.FC = () => {
   // Function to handle avatar selection
   const handleAvatarSelect = async (avatarUrl: string) => {
     if (!isOwnProfile) return;
-    
+
     setSavingAvatar(true);
     try {
       const profileRef = ref(database, `users/${userId}`);
@@ -551,18 +551,18 @@ const Profile: React.FC = () => {
         ...profile,
         profilePictureUrl: avatarUrl,
       };
-      
+
       await set(profileRef, updatedProfile);
       console.log('Avatar updated successfully');
-      
+
       // Update local state
       setProfile(prev => prev ? {
         ...prev,
         profilePictureUrl: avatarUrl,
       } : null);
-      
+
       setShowAvatarModal(false);
-      
+
     } catch (error) {
       console.error('Error updating avatar:', error);
       alert('Failed to update avatar. Please try again.');
@@ -570,7 +570,7 @@ const Profile: React.FC = () => {
       setSavingAvatar(false);
     }
   };
-  
+
   const handleProfilePictureClick = () => {
     if (isOwnProfile && !savingAvatar) {
       setShowAvatarModal(true);
@@ -586,7 +586,7 @@ const Profile: React.FC = () => {
 
   const renderSocialLink = (url: string, icon: React.ReactNode, label: string) => {
     if (!url) return null;
-    
+
     return (
       <a
         href={url.startsWith('http') ? url : `https://${url}`}
@@ -603,13 +603,15 @@ const Profile: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen">
-        <Navbar />
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center card-modern p-8">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-warp-primary mx-auto"></div>
-            <p className="mt-4 text-gray-600 dark:text-gray-300">Loading profile...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="sliding-squares-loader mx-auto mb-4">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
           </div>
+          <p className="text-gray-600 dark:text-gray-400">Loading profile...</p>
         </div>
       </div>
     );
@@ -637,22 +639,21 @@ const Profile: React.FC = () => {
   return (
     <div className="min-h-screen">
       <Navbar />
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Profile Header */}
         <div className="card-modern glass p-4 sm:p-6 mb-6">
           <div className="flex flex-col sm:flex-row items-center sm:items-start sm:justify-between mb-6 space-y-4 sm:space-y-0">
             <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6">
               <div className="relative flex-shrink-0">
-                <div 
-                  className={`h-20 w-20 sm:h-24 sm:w-24 rounded-full overflow-hidden ${
-                    isOwnProfile ? 'cursor-pointer group' : ''
-                  } ${profile.profilePictureUrl ? '' : 'bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center'}`}
+                <div
+                  className={`h-20 w-20 sm:h-24 sm:w-24 rounded-full overflow-hidden ${isOwnProfile ? 'cursor-pointer group' : ''
+                    } ${profile.profilePictureUrl ? '' : 'bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center'}`}
                   onClick={handleProfilePictureClick}
                 >
                   {profile.profilePictureUrl ? (
-                    <img 
-                      src={profile.profilePictureUrl} 
+                    <img
+                      src={profile.profilePictureUrl}
                       alt={profile.name}
                       className="w-full h-full object-cover"
                     />
@@ -680,7 +681,7 @@ const Profile: React.FC = () => {
                 <p className="text-sm text-gray-500 dark:text-gray-400 capitalize mt-1">{profile.role}</p>
               </div>
             </div>
-            
+
             {isOwnProfile && (
               <button
                 onClick={() => isEditing ? handleSave() : setIsEditing(true)}
@@ -710,8 +711,8 @@ const Profile: React.FC = () => {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
                   <input
-                    type="text" 
-                    value={name} 
+                    type="text"
+                    value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Enter your full name"
                     className="form-input-modern w-full"
@@ -721,16 +722,15 @@ const Profile: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Address</label>
                   <div className="relative">
                     <input
-                      type="email" 
-                      value={email} 
+                      type="email"
+                      value={email}
                       onChange={(e) => {
                         setEmail(e.target.value);
                         validateEmail(e.target.value);
                       }}
                       placeholder="Enter your email address"
-                      className={`w-full border rounded-md px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                        emailError ? 'border-red-300 bg-red-50' : validationResults.emailValid ? 'border-green-300 bg-green-50' : 'border-gray-300'
-                      }`}
+                      className={`w-full border rounded-md px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${emailError ? 'border-red-300 bg-red-50' : validationResults.emailValid ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                        }`}
                     />
                     <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                       {emailValidating && (
@@ -775,7 +775,7 @@ const Profile: React.FC = () => {
                           </>
                         )}
                       </button>
-                      
+
                       {showCodeInput && (
                         <div className="flex space-x-2">
                           <input
@@ -813,16 +813,15 @@ const Profile: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Registration Number</label>
                   <div className="relative">
                     <input
-                      type="text" 
-                      value={registrationNumber} 
+                      type="text"
+                      value={registrationNumber}
                       onChange={(e) => {
                         setRegistrationNumber(e.target.value);
                         validateRegNo(e.target.value);
                       }}
                       placeholder="Enter your registration number (e.g., 4207XXXXXX)"
-                      className={`w-full border rounded-md px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                        regNoError ? 'border-red-300 bg-red-50' : validationResults.regNoValid ? 'border-green-300 bg-green-50' : 'border-gray-300'
-                      }`}
+                      className={`w-full border rounded-md px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${regNoError ? 'border-red-300 bg-red-50' : validationResults.regNoValid ? 'border-green-300 bg-green-50' : 'border-gray-300'
+                        }`}
                     />
                     <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                       {regNoValidating && (
@@ -858,8 +857,8 @@ const Profile: React.FC = () => {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">GitHub Profile</label>
                   <input
-                    type="url" 
-                    value={github} 
+                    type="url"
+                    value={github}
                     onChange={(e) => setGithub(e.target.value)}
                     placeholder="https://github.com/username"
                     className="form-input-modern w-full"
@@ -868,8 +867,8 @@ const Profile: React.FC = () => {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">LinkedIn Profile</label>
                   <input
-                    type="url" 
-                    value={linkedin} 
+                    type="url"
+                    value={linkedin}
                     onChange={(e) => setLinkedin(e.target.value)}
                     placeholder="https://linkedin.com/in/username"
                     className="form-input-modern w-full"
@@ -878,8 +877,8 @@ const Profile: React.FC = () => {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Portfolio Website</label>
                   <input
-                    type="url" 
-                    value={portfolio} 
+                    type="url"
+                    value={portfolio}
                     onChange={(e) => setPortfolio(e.target.value)}
                     placeholder="https://yourportfolio.com"
                     className="form-input-modern w-full"
@@ -888,8 +887,8 @@ const Profile: React.FC = () => {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone Number</label>
                   <input
-                    type="tel" 
-                    value={phone} 
+                    type="tel"
+                    value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="+1 (555) 123-4567"
                     className="form-input-modern w-full"
@@ -898,8 +897,8 @@ const Profile: React.FC = () => {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">LeetCode Profile</label>
                   <input
-                    type="url" 
-                    value={leetcode} 
+                    type="url"
+                    value={leetcode}
                     onChange={(e) => setLeetcode(e.target.value)}
                     placeholder="https://leetcode.com/username"
                     className="form-input-modern w-full"
@@ -908,8 +907,8 @@ const Profile: React.FC = () => {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">HackerRank Profile</label>
                   <input
-                    type="url" 
-                    value={hackerrank} 
+                    type="url"
+                    value={hackerrank}
                     onChange={(e) => setHackerrank(e.target.value)}
                     placeholder="https://hackerrank.com/username"
                     className="form-input-modern w-full"
@@ -931,7 +930,7 @@ const Profile: React.FC = () => {
                 {renderSocialLink(profile.hackerrank, <Code className="h-4 w-4" />, 'HackerRank')}
               </div>
             )}
-            
+
             {!isEditing && !profile.github && !profile.linkedin && !profile.portfolio && !profile.phone && !profile.leetcode && !profile.hackerrank && (
               <p className="text-gray-500 italic">No contact information or social links added yet.</p>
             )}
@@ -951,7 +950,7 @@ const Profile: React.FC = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="card-modern p-4 sm:p-6 transform hover:scale-105 hover:-translate-y-1">
             <div className="flex items-center">
               <div className="p-2 sm:p-3 bg-green-100 dark:bg-green-900/30 rounded-xl mr-3 sm:mr-4 float-animation">
@@ -963,7 +962,7 @@ const Profile: React.FC = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="card-modern p-4 sm:p-6 transform hover:scale-105 hover:-translate-y-1">
             <div className="flex items-center">
               <div className="p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/30 rounded-xl mr-3 sm:mr-4 float-animation">
@@ -975,7 +974,7 @@ const Profile: React.FC = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="card-modern p-4 sm:p-6 transform hover:scale-105 hover:-translate-y-1">
             <div className="flex items-center">
               <div className="p-2 sm:p-3 bg-purple-100 dark:bg-purple-900/30 rounded-xl mr-3 sm:mr-4 float-animation">
@@ -998,8 +997,8 @@ const Profile: React.FC = () => {
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Performance Trend</h2>
             </div>
             {stats.total > 0 ? (
-              <Line 
-                data={progressData} 
+              <Line
+                data={progressData}
                 options={{
                   responsive: true,
                   plugins: {
@@ -1012,7 +1011,7 @@ const Profile: React.FC = () => {
                       beginAtZero: true,
                       max: 100,
                       ticks: {
-                        callback: function(value) {
+                        callback: function (value) {
                           return value + '%';
                         }
                       }
@@ -1038,7 +1037,7 @@ const Profile: React.FC = () => {
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Score Distribution</h2>
             </div>
             {stats.total > 0 ? (
-              <Doughnut 
+              <Doughnut
                 data={distributionData}
                 options={{
                   responsive: true,
@@ -1060,7 +1059,7 @@ const Profile: React.FC = () => {
             )}
           </div>
         </div>
-        
+
         {/* Recent Tests */}
         {stats.total > 0 && (
           <div className="card-modern glass p-6 mt-6">
@@ -1077,7 +1076,7 @@ const Profile: React.FC = () => {
                 </thead>
                 <tbody className="bg-white dark:bg-transparent divide-y divide-gray-200 dark:divide-gray-700">
                   {Object.entries(testResults)
-                    .sort(([,a], [,b]) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime())
+                    .sort(([, a], [, b]) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime())
                     .slice(0, 5)
                     .map(([testId, result]) => {
                       const test = tests.find(t => t.id === testId);
@@ -1091,12 +1090,11 @@ const Profile: React.FC = () => {
                             {result.score}/{result.totalQuestions}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                              percentage >= 90 ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' :
-                              percentage >= 80 ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300' :
-                              percentage >= 70 ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300' :
-                              'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
-                            }`}>
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${percentage >= 90 ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' :
+                                percentage >= 80 ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300' :
+                                  percentage >= 70 ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300' :
+                                    'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
+                              }`}>
                               {percentage}%
                             </span>
                           </td>
@@ -1111,7 +1109,7 @@ const Profile: React.FC = () => {
             </div>
           </div>
         )}
-        
+
         {/* Avatar Selection Modal */}
         <AvatarModal
           isOpen={showAvatarModal}

@@ -765,3 +765,96 @@
 .animate-fade-out {
   animation: fadeOut 0.15s ease-out;
 }
+/* Custom Sliding Squares Loader - Theme Colors */
+@keyframes slide-square-loader-1 {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(0, 32px);
+  }
+  50% {
+    transform: translate(32px, 32px);
+  }
+  75% {
+    transform: translate(32px, 0);
+  }
+}
+
+@keyframes slide-square-loader-2 {
+  0%, 100% {
+    transform: translate(32px, 0);
+  }
+  25% {
+    transform: translate(32px, 32px);
+  }
+  50% {
+    transform: translate(0, 32px);
+  }
+  75% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes slide-square-loader-3 {
+  0%, 100% {
+    transform: translate(32px, 32px);
+  }
+  25% {
+    transform: translate(0, 32px);
+  }
+  50% {
+    transform: translate(0, 0);
+  }
+  75% {
+    transform: translate(32px, 0);
+  }
+}
+
+@keyframes slide-square-loader-4 {
+  0%, 100% {
+    transform: translate(0, 32px);
+  }
+  25% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(32px, 0);
+  }
+  75% {
+    transform: translate(32px, 32px);
+  }
+}
+
+.sliding-squares-loader {
+  position: relative;
+  width: 64px;
+  height: 64px;
+}
+
+.sliding-squares-loader > div {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+}
+
+.sliding-squares-loader > div:nth-child(1) {
+  background: linear-gradient(135deg, #3B82F6, #6366F1);
+  animation: slide-square-loader-1 2s ease-in-out infinite;
+}
+
+.sliding-squares-loader > div:nth-child(2) {
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
+  animation: slide-square-loader-2 2s ease-in-out infinite;
+}
+
+.sliding-squares-loader > div:nth-child(3) {
+  background: linear-gradient(135deg, #8B5CF6, #A855F7);
+  animation: slide-square-loader-3 2s ease-in-out infinite;
+}
+
+.sliding-squares-loader > div:nth-child(4) {
+  background: linear-gradient(135deg, #A855F7, #3B82F6);
+  animation: slide-square-loader-4 2s ease-in-out infinite;
+}

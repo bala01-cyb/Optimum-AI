@@ -50,12 +50,12 @@ const Leaderboard: React.FC = () => {
   const fetchLeaderboardData = async () => {
     try {
       setLoading(true);
-      
+
       // Fetch all tests
       const testsRef = ref(database, 'tests');
       const testsSnapshot = await get(testsRef);
       const testsData: Test[] = [];
-      
+
       if (testsSnapshot.exists()) {
         const tests = testsSnapshot.val();
         Object.entries(tests).forEach(([id, test]: [string, any]) => {
@@ -71,37 +71,37 @@ const Leaderboard: React.FC = () => {
         });
       }
       setTests(testsData);
-      
+
       // Fetch all users (students only)
       const usersRef = ref(database, 'users');
       const usersSnapshot = await get(usersRef);
-      
+
       // Fetch all responses
       const responsesRef = ref(database, 'responses');
       const responsesSnapshot = await get(responsesRef);
-      
+
       const studentsData: StudentData[] = [];
-      
+
       if (usersSnapshot.exists()) {
         const users = usersSnapshot.val();
         const responses = responsesSnapshot.exists() ? responsesSnapshot.val() : {};
-        
+
         Object.entries(users).forEach(([uid, user]: [string, any]) => {
           // Only include students, not admins
           if (user.role === 'student') {
             // Get this student's test results
             const testResults: Record<string, TestResult> = {};
-            
+
             Object.keys(responses).forEach((testId) => {
               if (responses[testId] && responses[testId][uid]) {
                 testResults[testId] = responses[testId][uid];
               }
             });
-            
+
             // Calculate average score percentage across ALL tests (attended and unattended)
             const completedTests = Object.keys(testResults).length;
             let averageScore = 0;
-            
+
             // Calculate overall average considering ALL tests (unattended = 0%)
             if (testsData.length > 0) {
               const allPercentages = testsData.map(test => {
@@ -112,7 +112,7 @@ const Leaderboard: React.FC = () => {
               });
               averageScore = allPercentages.reduce((sum, percentage) => sum + percentage, 0) / testsData.length;
             }
-            
+
             studentsData.push({
               uid,
               name: user.name,
@@ -127,7 +127,7 @@ const Leaderboard: React.FC = () => {
           }
         });
       }
-      
+
       setStudents(studentsData);
     } catch (error) {
       console.error('Error fetching leaderboard data:', error);
@@ -157,10 +157,10 @@ const Leaderboard: React.FC = () => {
     if (selectedDepartment !== 'all') {
       filteredStudents = students.filter(student => student.department === selectedDepartment);
     }
-    
+
     // Then sort the filtered results
     const sortedStudents = [...filteredStudents];
-    
+
     if (sortBy === 'overall') {
       // Sort by average score (descending), then by completed tests (descending)
       return sortedStudents.sort((a, b) => {
@@ -194,13 +194,15 @@ const Leaderboard: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen">
-        <Navbar />
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center card-modern p-8">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-warp-primary mx-auto"></div>
-            <p className="mt-4 text-gray-600 dark:text-gray-300">Loading leaderboard...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="sliding-squares-loader mx-auto mb-4">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
           </div>
+          <p className="text-gray-600 dark:text-gray-400">Loading leaderboard...</p>
         </div>
       </div>
     );
@@ -213,7 +215,7 @@ const Leaderboard: React.FC = () => {
   return (
     <div className="min-h-screen">
       <Navbar />
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -222,7 +224,7 @@ const Leaderboard: React.FC = () => {
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Student Leaderboard</h1>
           </div>
           <p className="text-center text-gray-600 dark:text-gray-400">
-            {selectedDepartment === 'all' 
+            {selectedDepartment === 'all'
               ? 'Rankings based on overall performance across ALL tests (unattended tests count as 0%)'
               : `Rankings for ${selectedDepartment} department (unattended tests count as 0%)`
             }
@@ -260,9 +262,9 @@ const Leaderboard: React.FC = () => {
                 <Users className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Department:</span>
               </div>
-              <select 
-                value={selectedDepartment} 
-                onChange={handleDepartmentChange} 
+              <select
+                value={selectedDepartment}
+                onChange={handleDepartmentChange}
                 className="form-input-modern"
               >
                 <option value="all">All Departments</option>
@@ -271,16 +273,16 @@ const Leaderboard: React.FC = () => {
                 ))}
               </select>
             </div>
-            
+
             {/* Test Sort */}
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <BookOpen className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Sort by:</span>
               </div>
-              <select 
-                value={sortBy} 
-                onChange={handleSortChange} 
+              <select
+                value={sortBy}
+                onChange={handleSortChange}
                 className="form-input-modern"
               >
                 <option value="overall">Overall Average</option>
@@ -330,8 +332,8 @@ const Leaderboard: React.FC = () => {
                           {/* Profile Picture */}
                           <div className="flex-shrink-0">
                             {student.profilePictureUrl ? (
-                              <img 
-                                src={student.profilePictureUrl} 
+                              <img
+                                src={student.profilePictureUrl}
                                 alt={student.name}
                                 className="h-10 w-10 rounded-full object-cover"
                               />
@@ -345,9 +347,8 @@ const Leaderboard: React.FC = () => {
                           <div className="min-w-0 flex-1">
                             <button
                               onClick={() => navigate(`/profile/${student.uid}`)}
-                              className={`text-sm font-medium hover:underline transition-colors text-left ${
-                                isCurrentUser ? 'text-blue-900 dark:text-blue-300 hover:text-blue-700 dark:hover:text-blue-400' : 'text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400'
-                              }`}
+                              className={`text-sm font-medium hover:underline transition-colors text-left ${isCurrentUser ? 'text-blue-900 dark:text-blue-300 hover:text-blue-700 dark:hover:text-blue-400' : 'text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400'
+                                }`}
                             >
                               {student.name} {isCurrentUser && <span className="text-blue-600">(You)</span>}
                             </button>
@@ -362,8 +363,8 @@ const Leaderboard: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className={`text-sm font-medium ${isCurrentUser ? 'text-blue-900 dark:text-blue-300' : 'text-gray-900 dark:text-gray-100'}`}>
-                          {sortBy === 'overall' 
-                            ? `${student.averageScore}%` 
+                          {sortBy === 'overall'
+                            ? `${student.averageScore}%`
                             : getTestScore(student, sortBy)
                           }
                         </div>
