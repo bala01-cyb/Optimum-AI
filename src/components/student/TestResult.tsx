@@ -319,86 +319,87 @@ const TestResult: React.FC = () => {
   return (
     <div className="min-h-screen">
       <Navbar />
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-20">
         {/* Header and Back Button */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between">
+        <div className="mb-3 sm:mb-4">
+          <div className="flex flex-row items-center justify-between gap-2 mb-3 sm:mb-4">
             <button
               onClick={() => navigate('/dashboard')}
-              className="flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 mb-4 transition-colors"
+              className="flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors font-medium text-sm"
             >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Dashboard
+              <ArrowLeft className="h-4 w-4 mr-1" />
+              <span className="hidden sm:inline">Back to Dashboard</span>
+              <span className="sm:hidden">Back</span>
             </button>
 
             <button
               onClick={handleDownloadPDF}
               disabled={downloadingPdf}
-              className="btn-modern btn-secondary-modern mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
             >
               <Download className="h-4 w-4" />
-              <span>{downloadingPdf ? 'Generating PDF...' : 'Download PDF'}</span>
+              <span className="hidden sm:inline">{downloadingPdf ? 'Generating...' : 'Download PDF'}</span>
+              <span className="sm:hidden">PDF</span>
             </button>
           </div>
-          <h1 className="text-3xl font-bold gradient-warp">{test.title}</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">Test Results</p>
+          <h1 className="text-xl sm:text-2xl font-bold gradient-warp mb-1">{test.title}</h1>
+          <p className="text-gray-600 dark:text-gray-400 text-sm">Test Results</p>
         </div>
 
         {/* Results Summary */}
-        <div className="card-modern glass p-4 mb-4">
-          <div className="flex items-center gap-4">
-            {/* Left Side - Score (Centered) */}
-            <div className="flex-shrink-0 flex flex-col items-center justify-center w-48 border-r border-gray-200 dark:border-gray-700 pr-4">
-              <div className={`flex items-center justify-center w-16 h-16 rounded-full ${safePercentage >= 70 ? 'bg-green-100 dark:bg-green-900/30' : safePercentage >= 50 ? 'bg-yellow-100 dark:bg-yellow-900/30' : 'bg-red-100 dark:bg-red-900/30'} mb-2`}>
-                <Trophy className={`h-8 w-8 ${safePercentage >= 70 ? 'text-green-600 dark:text-green-400' : safePercentage >= 50 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}`} />
+        <div className="card-modern glass p-3 sm:p-4 mb-3 sm:mb-4">
+          <div className="flex flex-row gap-2 sm:gap-3">
+            {/* Score Display - Left Side (1/4 width) - Always on left even on mobile */}
+            <div className="flex-shrink-0 flex flex-col items-center justify-center w-24 sm:w-32 border-r border-gray-200 dark:border-gray-700 pr-2 sm:pr-3 py-2">
+              <div className={`flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full ${safePercentage >= 70 ? 'bg-green-100 dark:bg-green-900/30' : safePercentage >= 50 ? 'bg-yellow-100 dark:bg-yellow-900/30' : 'bg-red-100 dark:bg-red-900/30'} mb-2`}>
+                <Trophy className={`h-6 w-6 sm:h-7 sm:w-7 ${safePercentage >= 70 ? 'text-green-600 dark:text-green-400' : safePercentage >= 50 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}`} />
               </div>
-              <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-1">{safePercentage}%</h2>
-              <p className={`text-base font-semibold ${safePercentage >= 70 ? 'text-green-600 dark:text-green-400' : safePercentage >= 50 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}`}>Grade: {grade}</p>
+              <h2 className="text-2xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-1">{safePercentage}%</h2>
+              <p className={`text-xs sm:text-sm font-semibold text-center ${safePercentage >= 70 ? 'text-green-600 dark:text-green-400' : safePercentage >= 50 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}`}>Grade: {grade}</p>
             </div>
 
-            {/* Right Side - Metrics in Compact Grid */}
-            <div className="flex-1 grid grid-cols-3 gap-3">
-              <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700/50">
-                <div className="flex items-center gap-2 mb-2">
-                  <CheckCircle className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            {/* Metrics Stack - Right Side (3/4 width) - Vertical Stack */}
+            <div className="flex-1 flex flex-col gap-2">
+              <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700/50">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <CheckCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Correct</span>
                 </div>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white mb-1">{isNaN(Number(result.score)) ? 0 : Number(result.score)}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
+                <p className="text-xl font-bold text-gray-900 dark:text-white">{isNaN(Number(result.score)) ? 0 : Number(result.score)}</p>
+                <p className="text-[10px] text-gray-500 dark:text-gray-400">
                   {isNaN(Number(result.totalQuestions)) ? 0 : Math.round((Number(result.score) / Number(result.totalQuestions)) * 100)}% accuracy
                 </p>
               </div>
 
-              <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800/30 border border-gray-200 dark:border-gray-700/50">
-                <div className="flex items-center gap-2 mb-2">
-                  <XCircle className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+              <div className="p-2 rounded-lg bg-gray-50 dark:bg-gray-800/30 border border-gray-200 dark:border-gray-700/50">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <XCircle className="h-4 w-4 text-gray-600 dark:text-gray-400" />
                   <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Incorrect</span>
                 </div>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white mb-1">{Math.max(0, (isNaN(Number(result.totalQuestions)) ? 0 : Number(result.totalQuestions)) - (isNaN(Number(result.score)) ? 0 : Number(result.score)))}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
+                <p className="text-xl font-bold text-gray-900 dark:text-white">{Math.max(0, (isNaN(Number(result.totalQuestions)) ? 0 : Number(result.totalQuestions)) - (isNaN(Number(result.score)) ? 0 : Number(result.score)))}</p>
+                <p className="text-[10px] text-gray-500 dark:text-gray-400">
                   Out of {isNaN(Number(result.totalQuestions)) ? 0 : Number(result.totalQuestions)} questions
                 </p>
               </div>
 
-              <div className="p-3 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700/50">
-                <div className="flex items-center gap-2 mb-2">
-                  <Clock className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+              <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700/50">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <Clock className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                   <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Time</span>
                 </div>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white mb-1">{formatTime(result.timeSpent || 0)}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
+                <p className="text-xl font-bold text-gray-900 dark:text-white">{formatTime(result.timeSpent || 0)}</p>
+                <p className="text-[10px] text-gray-500 dark:text-gray-400">
                   {Math.round((result.timeSpent || 0) / (isNaN(Number(result.totalQuestions)) ? 1 : Number(result.totalQuestions)))}s per question
                 </p>
               </div>
             </div>
           </div>
         </div>
-
         {/* Progress Bar */}
-        <div className="card-modern p-4 mb-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Overall Performance</span>
-            <span className="text-sm text-gray-600 dark:text-gray-400">{isNaN(Number(result.score)) ? 0 : Number(result.score)}/{isNaN(Number(result.totalQuestions)) ? 0 : Number(result.totalQuestions)}</span>
+        <div className="card-modern p-4 sm:p-4 mb-4 sm:mb-6">
+          <div className="flex items-center justify-between mb-3 sm:mb-2">
+            <span className="text-base sm:text-sm font-medium text-gray-700 dark:text-gray-300">Overall Performance</span>
+            <span className="text-base sm:text-sm text-gray-600 dark:text-gray-400 font-semibold">{isNaN(Number(result.score)) ? 0 : Number(result.score)}/{isNaN(Number(result.totalQuestions)) ? 0 : Number(result.totalQuestions)}</span>
           </div>
           <div className="progress-bar">
             <div
@@ -409,16 +410,16 @@ const TestResult: React.FC = () => {
         </div>
 
         {/* Show Answers Button */}
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-end mb-4 sm:mb-6">
           <button
             onClick={() => showAnswers ? handleClosePanel() : setShowAnswers(true)}
-            className={`btn-modern ${showAnswers
+            className={`btn-modern w-full sm:w-auto ${showAnswers
               ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/50'
               : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50'
               }`}
           >
-            {showAnswers ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            <span>{showAnswers ? 'Hide Answers' : 'Show Answers'}</span>
+            {showAnswers ? <EyeOff className="h-5 w-5 sm:h-4 sm:w-4" /> : <Eye className="h-5 w-5 sm:h-4 sm:w-4" />}
+            <span className="text-base sm:text-sm">{showAnswers ? 'Hide Answers' : 'Show Answers'}</span>
           </button>
         </div>
 
@@ -438,27 +439,29 @@ const TestResult: React.FC = () => {
               style={{ display: 'flex', flexDirection: 'column' }}
             >
               {/* Scrollable Content */}
-              <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }} className="space-y-4">
+              <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }} className="space-y-4 sm:space-y-4">
                 {/* Legend with Close Button */}
-                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700/50 rounded-lg p-3 sticky top-0 z-10 flex items-center justify-between">
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700/50 rounded-lg p-3 sm:p-3 sticky top-0 z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
                   <p className="text-sm text-blue-800 dark:text-blue-300 flex-1">
                     <strong>Legend:</strong>
-                    <span className="inline-flex items-center ml-2 mr-4">
-                      <span className="w-3 h-3 bg-green-200 dark:bg-green-900/50 border border-green-400 dark:border-green-600 rounded mr-1"></span>
-                      Correct Answer
-                    </span>
-                    <span className="inline-flex items-center">
-                      <span className="w-3 h-3 bg-red-200 dark:bg-red-900/50 border border-red-400 dark:border-red-600 rounded mr-1"></span>
-                      Your Answer (Incorrect)
+                    <span className="flex flex-col sm:inline-flex sm:flex-row gap-2 sm:gap-0 mt-2 sm:mt-0">
+                      <span className="inline-flex items-center sm:ml-2 sm:mr-4">
+                        <span className="w-3 h-3 bg-green-200 dark:bg-green-900/50 border border-green-400 dark:border-green-600 rounded mr-1"></span>
+                        Correct Answer
+                      </span>
+                      <span className="inline-flex items-center">
+                        <span className="w-3 h-3 bg-red-200 dark:bg-red-900/50 border border-red-400 dark:border-red-600 rounded mr-1"></span>
+                        Your Answer (Incorrect)
+                      </span>
                     </span>
                   </p>
                   <button
                     onClick={handleClosePanel}
-                    className="ml-2 p-1 hover:bg-blue-100 dark:hover:bg-blue-800/30 rounded transition-colors flex-shrink-0"
+                    className="ml-2 p-2 sm:p-1 hover:bg-blue-100 dark:hover:bg-blue-800/30 rounded transition-colors flex-shrink-0 self-end sm:self-auto"
                     aria-label="Close panel"
                     type="button"
                   >
-                    <X className="h-5 w-5 text-blue-600 dark:text-blue-300" />
+                    <X className="h-6 w-6 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-300" />
                   </button>
                 </div>
 
@@ -469,11 +472,11 @@ const TestResult: React.FC = () => {
                     const isCorrect = userAnswerInfo?.isCorrect || false;
 
                     return (
-                      <div key={question.id} className="card-modern p-4 animate-fade-in-up" style={{ animationDelay: `${index * 50}ms` }}>
+                      <div key={question.id} className="card-modern p-4 sm:p-4 animate-fade-in-up" style={{ animationDelay: `${index * 50}ms` }}>
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex-1">
-                            <div className="flex items-center mb-2">
-                              <span className="text-sm font-medium text-gray-500 dark:text-gray-400 mr-2">Question {index + 1}</span>
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0 mb-3 sm:mb-2">
+                              <span className="text-base sm:text-sm font-medium text-gray-500 dark:text-gray-400 sm:mr-2">Question {index + 1}</span>
                               {userAnswerInfo ? (
                                 isCorrect ? (
                                   <span className="status-success">
@@ -496,12 +499,12 @@ const TestResult: React.FC = () => {
                           </div>
                         </div>
 
-                        <div className="space-y-2">
+                        <div className="space-y-2 sm:space-y-2">
                           {question.options.map((option, optionIndex) => {
                             const isUserAnswer = userAnswerInfo && userAnswerInfo.value === option;
                             const isCorrectAnswer = question.options[question.correctAnswer] === option;
 
-                            let optionClasses = 'w-full text-left p-3 rounded-lg border transition-all duration-200 ';
+                            let optionClasses = 'w-full text-left p-4 sm:p-3 rounded-lg border transition-all duration-200 ';
 
                             if (isUserAnswer && isCorrectAnswer) {
                               optionClasses += 'border-green-400 bg-green-200 text-green-900';
@@ -516,7 +519,7 @@ const TestResult: React.FC = () => {
                             return (
                               <div key={optionIndex} className={optionClasses}>
                                 <div className="flex items-center">
-                                  <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-sm font-medium mr-3 ${isCorrectAnswer
+                                  <span className={`inline-flex items-center justify-center w-7 h-7 sm:w-6 sm:h-6 rounded-full text-sm font-medium mr-3 ${isCorrectAnswer
                                     ? 'bg-green-600 text-white'
                                     : isUserAnswer
                                       ? 'bg-red-600 text-white'
@@ -524,7 +527,7 @@ const TestResult: React.FC = () => {
                                     }`}>
                                     {String.fromCharCode(65 + optionIndex)}
                                   </span>
-                                  <span className="flex-1">{option}</span>
+                                  <span className="flex-1 text-base sm:text-sm">{option}</span>
                                   <div className="flex items-center space-x-2">
                                     {isCorrectAnswer && (
                                       <span className="text-xs font-medium text-green-700">Correct</span>

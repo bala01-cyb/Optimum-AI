@@ -145,15 +145,15 @@ const Navbar: React.FC = () => {
 
   return (
     <nav className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 sticky top-0 z-[100]">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="flex justify-between items-center h-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="flex justify-between items-center h-14 sm:h-16">
           {/* Logo */}
           <button
             onClick={handleLogoClick}
-            className="flex items-center space-x-3 hover:opacity-70 transition-opacity"
+            className="flex items-center space-x-2 sm:space-x-3 hover:opacity-70 transition-opacity"
           >
-            <img src="/logo.svg" alt="OPTIMUM" className="h-8 w-8" />
-            <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+            <img src="/logo.svg" alt="OPTIMUM" className="h-7 w-7 sm:h-8 sm:w-8" />
+            <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
               OPTIMUM
             </h1>
           </button>
@@ -307,21 +307,21 @@ const Navbar: React.FC = () => {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-16 left-0 right-0 bg-white dark:bg-gray-900 shadow-lg border-b border-gray-200 dark:border-gray-700 z-50 transition-colors duration-300">
-          <div className="px-2 pt-2 pb-3 space-y-1">
+        <div className="md:hidden absolute top-14 sm:top-16 left-0 right-0 bg-white dark:bg-gray-900 shadow-lg border-b border-gray-200 dark:border-gray-700 z-50 transition-colors duration-300">
+          <div className="px-3 sm:px-2 pt-3 sm:pt-2 pb-4 sm:pb-3 space-y-1">
             {/* User Info - Only for authenticated users */}
             {currentUser && (
-              <div className="px-3 py-3 border-b border-gray-200 dark:border-gray-700">
+              <div className="px-3 py-4 sm:py-3 border-b border-gray-200 dark:border-gray-700 mb-2">
                 <div className="flex items-center space-x-3">
                   {userProfilePicture ? (
                     <img
                       src={userProfilePicture}
                       alt={userData?.name}
-                      className="h-10 w-10 rounded-full object-cover"
+                      className="h-12 w-12 sm:h-10 sm:w-10 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="h-10 w-10 bg-blue-500 rounded-full flex items-center justify-center">
-                      <User className="h-6 w-6 text-white" />
+                    <div className="h-12 w-12 sm:h-10 sm:w-10 bg-blue-500 rounded-full flex items-center justify-center">
+                      <User className="h-7 w-7 sm:h-6 sm:w-6 text-white" />
                     </div>
                   )}
                   <div>
@@ -338,9 +338,9 @@ const Navbar: React.FC = () => {
                 window.location.href = '/about';
                 setIsMobileMenuOpen(false);
               }}
-              className="w-full text-left flex items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className="w-full text-left flex items-center px-4 sm:px-3 py-3 sm:py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
-              <Info className="mr-3 h-5 w-5" />
+              <Info className="mr-3 h-6 w-6 sm:h-5 sm:w-5" />
               About Us
             </button>
 
@@ -349,9 +349,9 @@ const Navbar: React.FC = () => {
                 window.location.href = '/contact';
                 setIsMobileMenuOpen(false);
               }}
-              className="w-full text-left flex items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className="w-full text-left flex items-center px-4 sm:px-3 py-3 sm:py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
-              <Mail className="mr-3 h-5 w-5" />
+              <Mail className="mr-3 h-6 w-6 sm:h-5 sm:w-5" />
               Contact Us
             </button>
 
@@ -360,11 +360,11 @@ const Navbar: React.FC = () => {
                 toggleTheme();
                 setIsMobileMenuOpen(false);
               }}
-              className="w-full text-left flex items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className="w-full text-left flex items-center px-4 sm:px-3 py-3 sm:py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
               disabled={isThemeTransitioning}
             >
               <div className={`mr-3 transition-transform duration-300 ${isThemeTransitioning ? 'animate-spin' : ''}`}>
-                {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                {isDarkMode ? <Sun className="h-6 w-6 sm:h-5 sm:w-5" /> : <Moon className="h-6 w-6 sm:h-5 sm:w-5" />}
               </div>
               {isDarkMode ? 'Light Mode' : 'Dark Mode'}
             </button>
@@ -373,26 +373,26 @@ const Navbar: React.FC = () => {
               <>
                 <button
                   onClick={handleLogout}
-                  className="w-full text-left flex items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                  className="w-full text-left flex items-center px-4 sm:px-3 py-3 sm:py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 >
-                  <LogOut className="mr-3 h-5 w-5" />
+                  <LogOut className="mr-3 h-6 w-6 sm:h-5 sm:w-5" />
                   Logout
                 </button>
 
                 <button
                   onClick={handleProfileClick}
-                  className="w-full text-left flex items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                  className="w-full text-left flex items-center px-4 sm:px-3 py-3 sm:py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 >
-                  <User className="mr-3 h-5 w-5" />
+                  <User className="mr-3 h-6 w-6 sm:h-5 sm:w-5" />
                   Profile
                 </button>
 
                 {userData?.role === 'student' && (
                   <button
                     onClick={handleLeaderboardClick}
-                    className="w-full text-left flex items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    className="w-full text-left flex items-center px-4 sm:px-3 py-3 sm:py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                   >
-                    <Trophy className="mr-3 h-5 w-5" />
+                    <Trophy className="mr-3 h-6 w-6 sm:h-5 sm:w-5" />
                     Leaderboard
                   </button>
                 )}
@@ -402,18 +402,18 @@ const Navbar: React.FC = () => {
                 <Link
                   to="/login"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="w-full text-left flex items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                  className="w-full text-left flex items-center px-4 sm:px-3 py-3 sm:py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 >
-                  <User className="mr-3 h-5 w-5" />
+                  <User className="mr-3 h-6 w-6 sm:h-5 sm:w-5" />
                   Login
                 </Link>
 
                 <Link
                   to="/register"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="w-full text-left flex items-center px-3 py-2 rounded-md text-base font-medium bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 transition-colors"
+                  className="w-full text-left flex items-center px-4 sm:px-3 py-3 sm:py-2 rounded-md text-base font-medium bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 transition-colors"
                 >
-                  <User className="mr-3 h-5 w-5" />
+                  <User className="mr-3 h-6 w-6 sm:h-5 sm:w-5" />
                   Sign Up
                 </Link>
               </>

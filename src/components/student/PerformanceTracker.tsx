@@ -125,31 +125,31 @@ const PerformanceTracker: React.FC<PerformanceTrackerProps> = ({
                 </div>
             )}
 
-            {/* Statistics Grid */}
+            {/* Statistics Grid - Compact 2x2 Grid */}
             {trend.trend !== 'insufficient-data' && (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-2">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                     <div className="text-center p-2 rounded-lg bg-gray-50 dark:bg-gray-800/30 border border-gray-200 dark:border-gray-700/50">
                         <div className="flex items-center justify-center w-6 h-6 bg-blue-100 dark:bg-blue-900/30 rounded-lg mx-auto mb-1">
                             <Target className="h-3 w-3 text-blue-600 dark:text-blue-400" />
                         </div>
-                        <p className="text-lg font-bold text-gray-900 dark:text-white">{trend.averageScore}%</p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">Average</p>
+                        <p className="text-base font-bold text-gray-900 dark:text-white">{trend.averageScore}%</p>
+                        <p className="text-[10px] text-gray-600 dark:text-gray-400">Average</p>
                     </div>
 
                     <div className="text-center p-2 rounded-lg bg-gray-50 dark:bg-gray-800/30 border border-gray-200 dark:border-gray-700/50">
                         <div className="flex items-center justify-center w-6 h-6 bg-green-100 dark:bg-green-900/30 rounded-lg mx-auto mb-1">
                             <Award className="h-3 w-3 text-green-600 dark:text-green-400" />
                         </div>
-                        <p className="text-lg font-bold text-gray-900 dark:text-white">{trend.bestScore}%</p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">Best</p>
+                        <p className="text-base font-bold text-gray-900 dark:text-white">{trend.bestScore}%</p>
+                        <p className="text-[10px] text-gray-600 dark:text-gray-400">Best</p>
                     </div>
 
                     <div className="text-center p-2 rounded-lg bg-gray-50 dark:bg-gray-800/30 border border-gray-200 dark:border-gray-700/50">
                         <div className="flex items-center justify-center w-6 h-6 bg-purple-100 dark:bg-purple-900/30 rounded-lg mx-auto mb-1">
                             <Zap className="h-3 w-3 text-purple-600 dark:text-purple-400" />
                         </div>
-                        <p className="text-lg font-bold text-gray-900 dark:text-white">{trend.consistency}%</p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">Consistency</p>
+                        <p className="text-base font-bold text-gray-900 dark:text-white">{trend.consistency}%</p>
+                        <p className="text-[10px] text-gray-600 dark:text-gray-400">Consistency</p>
                     </div>
 
                     <div className="text-center p-2 rounded-lg bg-gray-50 dark:bg-gray-800/30 border border-gray-200 dark:border-gray-700/50">
@@ -160,10 +160,10 @@ const PerformanceTracker: React.FC<PerformanceTrackerProps> = ({
                                 <TrendingDown className="h-3 w-3 text-orange-600 dark:text-orange-400" />
                             )}
                         </div>
-                        <p className="text-lg font-bold text-gray-900 dark:text-white">
+                        <p className="text-base font-bold text-gray-900 dark:text-white">
                             {trend.improvementFromAverage >= 0 ? '+' : ''}{trend.improvementFromAverage}%
                         </p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">vs Average</p>
+                        <p className="text-[10px] text-gray-600 dark:text-gray-400">vs Average</p>
                     </div>
                 </div>
             )}
