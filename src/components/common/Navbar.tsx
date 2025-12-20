@@ -152,7 +152,7 @@ const Navbar: React.FC = () => {
             onClick={handleLogoClick}
             className="flex items-center space-x-3 hover:opacity-70 transition-opacity"
           >
-            <img src="/favicon.png" alt="OPTIMUM" className="h-8 w-8" />
+            <img src="/logo.svg" alt="OPTIMUM" className="h-8 w-8" />
             <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
               OPTIMUM
             </h1>
