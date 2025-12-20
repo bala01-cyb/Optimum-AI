@@ -350,7 +350,7 @@ const TestResult: React.FC = () => {
         <div className="card-modern glass p-3 sm:p-4 mb-3 sm:mb-4">
           <div className="flex flex-row gap-2 sm:gap-3">
             {/* Score Display - Left Side (much wider) - Always on left even on mobile */}
-            <div className="flex-shrink-0 flex flex-col items-center justify-center w-56 sm:w-60 border-r border-gray-200 dark:border-gray-700 pr-3 sm:pr-4 py-2">
+            <div className="flex-shrink-0 flex flex-col items-center justify-center w-56 sm:w-64 border-r border-gray-200 dark:border-gray-700 pr-3 sm:pr-4 py-2">
               <div className={`flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-full ${safePercentage >= 70 ? 'bg-green-100 dark:bg-green-900/30' : safePercentage >= 50 ? 'bg-yellow-100 dark:bg-yellow-900/30' : 'bg-red-100 dark:bg-red-900/30'} mb-2`}>
                 <Trophy className={`h-7 w-7 sm:h-8 sm:w-8 ${safePercentage >= 70 ? 'text-green-600 dark:text-green-400' : safePercentage >= 50 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}`} />
               </div>
