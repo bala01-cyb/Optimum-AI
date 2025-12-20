@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, User, MessageSquare, Send, CheckCircle, AlertCircle } from 'lucide-react';
+import { Mail, Send, CheckCircle, AlertCircle } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 import Navbar from '../components/common/Navbar';
 
@@ -90,57 +90,48 @@ const ContactUs: React.FC = () => {
                                 <label htmlFor="name" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                                     Your Name
                                 </label>
-                                <div className="relative">
-                                    <User className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
-                                    <input
-                                        type="text"
-                                        id="name"
-                                        name="name"
-                                        required
-                                        value={formData.name}
-                                        onChange={handleChange}
-                                        className="input-mobile pl-12 block w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 bg-white dark:bg-slate-800 dark:text-white transition-all"
-                                        placeholder="Enter your name"
-                                    />
-                                </div>
+                                <input
+                                    type="text"
+                                    id="name"
+                                    name="name"
+                                    required
+                                    value={formData.name}
+                                    onChange={handleChange}
+                                    className="input-mobile block w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 bg-white dark:bg-slate-800 dark:text-white transition-all"
+                                    placeholder="Enter your name"
+                                />
                             </div>
 
                             <div>
                                 <label htmlFor="email" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                                     Email Address
                                 </label>
-                                <div className="relative">
-                                    <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
-                                    <input
-                                        type="email"
-                                        id="email"
-                                        name="email"
-                                        required
-                                        value={formData.email}
-                                        onChange={handleChange}
-                                        className="input-mobile pl-12 block w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 bg-white dark:bg-slate-800 dark:text-white transition-all"
-                                        placeholder="your.email@example.com"
-                                    />
-                                </div>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    required
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    className="input-mobile block w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 bg-white dark:bg-slate-800 dark:text-white transition-all"
+                                    placeholder="your.email@example.com"
+                                />
                             </div>
 
                             <div>
                                 <label htmlFor="subject" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                                     Subject
                                 </label>
-                                <div className="relative">
-                                    <MessageSquare className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
-                                    <input
-                                        type="text"
-                                        id="subject"
-                                        name="subject"
-                                        required
-                                        value={formData.subject}
-                                        onChange={handleChange}
-                                        className="pl-12 block w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 bg-white dark:bg-slate-800 dark:text-white transition-all"
-                                        placeholder="What is this about?"
-                                    />
-                                </div>
+                                <input
+                                    type="text"
+                                    id="subject"
+                                    name="subject"
+                                    required
+                                    value={formData.subject}
+                                    onChange={handleChange}
+                                    className="block w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 bg-white dark:bg-slate-800 dark:text-white transition-all"
+                                    placeholder="What is this about?"
+                                />
                             </div>
 
                             <div>
@@ -201,9 +192,9 @@ const ContactUs: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="card-modern p-8 bg-gradient-to-r from-purple-600 to-blue-600">
+                        <div className="p-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl shadow-xl">
                             <h3 className="text-xl font-bold text-white mb-4">Quick Support</h3>
-                            <p className="text-purple-100 mb-4">
+                            <p className="text-white mb-4">
                                 For immediate assistance, check out our FAQ section or browse through our help documentation.
                             </p>
                             <div className="space-y-3">

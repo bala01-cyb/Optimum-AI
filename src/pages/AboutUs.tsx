@@ -97,9 +97,9 @@ const AboutUs: React.FC = () => {
 
             {/* CTA Section */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                <div className="card-modern p-12 text-center bg-gradient-to-r from-purple-600 to-blue-600">
+                <div className="p-12 text-center bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl shadow-xl">
                     <h2 className="text-3xl font-bold text-white mb-4">Ready to Get Started?</h2>
-                    <p className="text-xl text-purple-100 mb-8 max-w-2xl mx-auto">
+                    <p className="text-xl text-white mb-8 max-w-2xl mx-auto">
                         Join thousands of students already improving their test scores with OPTIMUM's adaptive learning platform
                     </p>
                     <Link
