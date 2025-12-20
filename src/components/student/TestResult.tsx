@@ -331,46 +331,49 @@ const TestResult: React.FC = () => {
 
         {/* Results Summary */}
         <div className="card-modern glass p-4 mb-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            {/* Left Side - Score */}
-            <div className="flex-shrink-0 text-center md:text-left md:w-64">
-              <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full ${safePercentage >= 70 ? 'bg-green-100 dark:bg-green-900/30' : safePercentage >= 50 ? 'bg-yellow-100 dark:bg-yellow-900/30' : 'bg-red-100 dark:bg-red-900/30'} mb-3`}>
-                <Trophy className={`h-10 w-10 ${safePercentage >= 70 ? 'text-green-600 dark:text-green-400' : safePercentage >= 50 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}`} />
+          <div className="flex items-center gap-4">
+            {/* Left Side - Score (Centered) */}
+            <div className="flex-shrink-0 flex flex-col items-center justify-center w-48 border-r border-gray-200 dark:border-gray-700 pr-4">
+              <div className={`flex items-center justify-center w-16 h-16 rounded-full ${safePercentage >= 70 ? 'bg-green-100 dark:bg-green-900/30' : safePercentage >= 50 ? 'bg-yellow-100 dark:bg-yellow-900/30' : 'bg-red-100 dark:bg-red-900/30'} mb-2`}>
+                <Trophy className={`h-8 w-8 ${safePercentage >= 70 ? 'text-green-600 dark:text-green-400' : safePercentage >= 50 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}`} />
               </div>
-              <h2 className="text-5xl font-bold text-gray-900 dark:text-white mb-1">{safePercentage}%</h2>
-              <p className={`text-xl font-semibold ${safePercentage >= 70 ? 'text-green-600 dark:text-green-400' : safePercentage >= 50 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}`}>Grade: {grade}</p>
+              <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-1">{safePercentage}%</h2>
+              <p className={`text-base font-semibold ${safePercentage >= 70 ? 'text-green-600 dark:text-green-400' : safePercentage >= 50 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}`}>Grade: {grade}</p>
             </div>
 
-            {/* Right Side - Metrics Stacked */}
-            <div className="flex-1 space-y-2">
-              <div className="flex items-center p-2.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700/50">
-                <div className="flex items-center justify-center w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg mr-3">
+            {/* Right Side - Metrics in Compact Grid */}
+            <div className="flex-1 grid grid-cols-3 gap-3">
+              <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700/50">
+                <div className="flex items-center gap-2 mb-2">
                   <CheckCircle className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                  <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Correct</span>
                 </div>
-                <div className="flex-1">
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Correct Answers</p>
-                  <p className="text-xl font-bold text-gray-900 dark:text-white">{isNaN(Number(result.score)) ? 0 : Number(result.score)}</p>
-                </div>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white mb-1">{isNaN(Number(result.score)) ? 0 : Number(result.score)}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {isNaN(Number(result.totalQuestions)) ? 0 : Math.round((Number(result.score) / Number(result.totalQuestions)) * 100)}% accuracy
+                </p>
               </div>
 
-              <div className="flex items-center p-2.5 rounded-lg bg-gray-50 dark:bg-gray-800/30 border border-gray-200 dark:border-gray-700/50">
-                <div className="flex items-center justify-center w-10 h-10 bg-gray-100 dark:bg-gray-800/50 rounded-lg mr-3">
+              <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800/30 border border-gray-200 dark:border-gray-700/50">
+                <div className="flex items-center gap-2 mb-2">
                   <XCircle className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                  <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Incorrect</span>
                 </div>
-                <div className="flex-1">
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Incorrect Answers</p>
-                  <p className="text-xl font-bold text-gray-900 dark:text-white">{Math.max(0, (isNaN(Number(result.totalQuestions)) ? 0 : Number(result.totalQuestions)) - (isNaN(Number(result.score)) ? 0 : Number(result.score)))}</p>
-                </div>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white mb-1">{Math.max(0, (isNaN(Number(result.totalQuestions)) ? 0 : Number(result.totalQuestions)) - (isNaN(Number(result.score)) ? 0 : Number(result.score)))}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Out of {isNaN(Number(result.totalQuestions)) ? 0 : Number(result.totalQuestions)} questions
+                </p>
               </div>
 
-              <div className="flex items-center p-2.5 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700/50">
-                <div className="flex items-center justify-center w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg mr-3">
+              <div className="p-3 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700/50">
+                <div className="flex items-center gap-2 mb-2">
                   <Clock className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                  <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Time</span>
                 </div>
-                <div className="flex-1">
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Time Spent</p>
-                  <p className="text-xl font-bold text-gray-900 dark:text-white">{formatTime(result.timeSpent || 0)}</p>
-                </div>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white mb-1">{formatTime(result.timeSpent || 0)}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {Math.round((result.timeSpent || 0) / (isNaN(Number(result.totalQuestions)) ? 1 : Number(result.totalQuestions)))}s per question
+                </p>
               </div>
             </div>
           </div>
