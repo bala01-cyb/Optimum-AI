@@ -83,12 +83,9 @@ export const useTestProctor = (config: ProctorConfig = {}) => {
       }
     } catch (error) {
       console.error('Failed to enter fullscreen:', error);
-      // Only add violation if test has started and user has had time to interact
-      if (testStarted.current && hasEnteredFullscreen.current) {
-        addViolation('FULLSCREEN_FAILED', 'Unable to enter fullscreen mode');
-      }
+      // Don't add violation for failing to enter - only for exiting after entering
     }
-  }, [addViolation]);
+  }, []);
 
   const exitFullscreen = useCallback(async () => {
     try {
@@ -130,7 +127,7 @@ export const useTestProctor = (config: ProctorConfig = {}) => {
         // Add grace period check to avoid violations during initial setup
         const now = Date.now();
         const timeSinceTestStart = now - testStartTime.current;
-        
+
         if (timeSinceTestStart > GRACE_PERIOD_MS) {
           console.log('User exited fullscreen mode - adding violation');
           addViolation('FULLSCREEN_EXIT', 'User exited fullscreen mode during test');
@@ -168,7 +165,7 @@ export const useTestProctor = (config: ProctorConfig = {}) => {
         // Add grace period check to avoid violations during initial setup
         const now = Date.now();
         const timeSinceTestStart = now - testStartTime.current;
-        
+
         if (timeSinceTestStart > GRACE_PERIOD_MS) {
           console.log('Tab switch detected');
           addViolation('TAB_SWITCH', 'User switched to another tab or window');
@@ -183,7 +180,7 @@ export const useTestProctor = (config: ProctorConfig = {}) => {
         // Add grace period check to avoid violations during initial setup
         const now = Date.now();
         const timeSinceTestStart = now - testStartTime.current;
-        
+
         if (timeSinceTestStart > GRACE_PERIOD_MS) {
           console.log('Window blur detected');
           addViolation('WINDOW_BLUR', 'Browser window lost focus');
@@ -214,7 +211,7 @@ export const useTestProctor = (config: ProctorConfig = {}) => {
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!testStarted.current) return;
-      
+
       // Disable Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+A
       if (e.ctrlKey && ['c', 'v', 'x', 'a'].includes(e.key.toLowerCase())) {
         e.preventDefault();
@@ -265,7 +262,7 @@ export const useTestProctor = (config: ProctorConfig = {}) => {
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!testStarted.current) return;
-      
+
       // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
       if (
         e.key === 'F12' ||
@@ -291,7 +288,7 @@ export const useTestProctor = (config: ProctorConfig = {}) => {
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!testStarted.current) return;
-      
+
       // Detect common screenshot shortcuts
       if (
         e.key === 'PrintScreen' ||
@@ -311,101 +308,101 @@ export const useTestProctor = (config: ProctorConfig = {}) => {
     };
   }, [enableScreenshot, addViolation]);
 
-// Mobile Proctoring System
-const lastActiveTime = useRef(Date.now());
-const blurStartTime = useRef<number>(0);
-const originalWindowSize = useRef<{width: number; height: number} | null>(null);
-const screenCheckerInterval = useRef<number | null>(null);
+  // Mobile Proctoring System
+  const lastActiveTime = useRef(Date.now());
+  const blurStartTime = useRef<number>(0);
+  const originalWindowSize = useRef<{ width: number; height: number } | null>(null);
+  const screenCheckerInterval = useRef<number | null>(null);
 
-useEffect(() => {
-  if (!enableMobileProctoring) return;
+  useEffect(() => {
+    if (!enableMobileProctoring) return;
 
-  const isMobile = () => {
-    const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
-    const mobileRegex = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i;
-    return mobileRegex.test(userAgent.toLowerCase()) || 'ontouchstart' in window;
-  };
-  
-  const isAndroid = () => {
-    const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
-    return /android/i.test(userAgent.toLowerCase());
-  };
+    const isMobile = () => {
+      const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+      const mobileRegex = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i;
+      return mobileRegex.test(userAgent.toLowerCase()) || 'ontouchstart' in window;
+    };
 
-  if (!isMobile()) {
-    console.log('Mobile proctoring enabled but not on mobile device');
-    return;
-  }
-  
-  // Store initial window dimensions
-  originalWindowSize.current = {
-    width: window.innerWidth,
-    height: window.innerHeight
-  };
-  console.log(`Initial screen size recorded: ${originalWindowSize.current.width}x${originalWindowSize.current.height}`);
-  
-  // Function to detect split screen, one-handed mode, or PIP
-  const detectScreenModeChange = () => {
-    if (!testStarted.current || !originalWindowSize.current) return;
-    
-    // Get current screen dimensions
-    const currentWidth = window.innerWidth;
-    const currentHeight = window.innerHeight;
-    
-    // Calculate how much the dimensions changed as percentages
-    const widthRatio = currentWidth / originalWindowSize.current.width;
-    const heightRatio = currentHeight / originalWindowSize.current.height;
-    
-    console.log(`Screen dimensions check - Width ratio: ${widthRatio.toFixed(2)}, Height ratio: ${heightRatio.toFixed(2)}`);
-    
-    // Thresholds for detecting significant changes
-    const SPLIT_SCREEN_THRESHOLD = 0.8; // 20% change in either dimension
-    const SMALL_MODE_THRESHOLD = 0.85; // 15% change for one-handed mode
-    
-    // Detect horizontal split screen (common on tablets/larger phones)
-    if (widthRatio < SPLIT_SCREEN_THRESHOLD && Math.abs(heightRatio - 1) < 0.1) {
-      console.log('📱 Horizontal split screen detected');
-      addViolation('ANDROID_SPLIT_SCREEN', 'Split screen mode detected - horizontal');
-      return true;
+    const isAndroid = () => {
+      const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+      return /android/i.test(userAgent.toLowerCase());
+    };
+
+    if (!isMobile()) {
+      console.log('Mobile proctoring enabled but not on mobile device');
+      return;
     }
-    
-    // Detect vertical split screen
-    if (heightRatio < SPLIT_SCREEN_THRESHOLD && Math.abs(widthRatio - 1) < 0.1) {
-      console.log('📱 Vertical split screen detected');
-      addViolation('ANDROID_SPLIT_SCREEN', 'Split screen mode detected - vertical');
-      return true;
-    }
-    
-    // Detect one-handed mode (usually smaller in both dimensions)
-    if (widthRatio < SMALL_MODE_THRESHOLD && heightRatio < SMALL_MODE_THRESHOLD) {
-      console.log('📱 One-handed mode or minimized window detected');
-      addViolation('ANDROID_ONE_HAND_MODE', 'One-handed mode or minimized window detected');
-      return true;
-    }
-    
-    // Detect PIP (Picture in Picture) - typically much smaller
-    if (widthRatio < 0.5 && heightRatio < 0.5) {
-      console.log('📱 Possible PIP mode detected');
-      addViolation('ANDROID_PIP_MODE', 'Picture-in-Picture or floating window detected');
-      return true;
-    }
-    
-    return false;
-  };
-  
-  // Start screen mode detection interval
-  screenCheckerInterval.current = window.setInterval(detectScreenModeChange, 2000); // Check every 2 seconds
+
+    // Store initial window dimensions
+    originalWindowSize.current = {
+      width: window.innerWidth,
+      height: window.innerHeight
+    };
+    console.log(`Initial screen size recorded: ${originalWindowSize.current.width}x${originalWindowSize.current.height}`);
+
+    // Function to detect split screen, one-handed mode, or PIP
+    const detectScreenModeChange = () => {
+      if (!testStarted.current || !originalWindowSize.current) return;
+
+      // Get current screen dimensions
+      const currentWidth = window.innerWidth;
+      const currentHeight = window.innerHeight;
+
+      // Calculate how much the dimensions changed as percentages
+      const widthRatio = currentWidth / originalWindowSize.current.width;
+      const heightRatio = currentHeight / originalWindowSize.current.height;
+
+      console.log(`Screen dimensions check - Width ratio: ${widthRatio.toFixed(2)}, Height ratio: ${heightRatio.toFixed(2)}`);
+
+      // Thresholds for detecting significant changes
+      const SPLIT_SCREEN_THRESHOLD = 0.8; // 20% change in either dimension
+      const SMALL_MODE_THRESHOLD = 0.85; // 15% change for one-handed mode
+
+      // Detect horizontal split screen (common on tablets/larger phones)
+      if (widthRatio < SPLIT_SCREEN_THRESHOLD && Math.abs(heightRatio - 1) < 0.1) {
+        console.log('📱 Horizontal split screen detected');
+        addViolation('ANDROID_SPLIT_SCREEN', 'Split screen mode detected - horizontal');
+        return true;
+      }
+
+      // Detect vertical split screen
+      if (heightRatio < SPLIT_SCREEN_THRESHOLD && Math.abs(widthRatio - 1) < 0.1) {
+        console.log('📱 Vertical split screen detected');
+        addViolation('ANDROID_SPLIT_SCREEN', 'Split screen mode detected - vertical');
+        return true;
+      }
+
+      // Detect one-handed mode (usually smaller in both dimensions)
+      if (widthRatio < SMALL_MODE_THRESHOLD && heightRatio < SMALL_MODE_THRESHOLD) {
+        console.log('📱 One-handed mode or minimized window detected');
+        addViolation('ANDROID_ONE_HAND_MODE', 'One-handed mode or minimized window detected');
+        return true;
+      }
+
+      // Detect PIP (Picture in Picture) - typically much smaller
+      if (widthRatio < 0.5 && heightRatio < 0.5) {
+        console.log('📱 Possible PIP mode detected');
+        addViolation('ANDROID_PIP_MODE', 'Picture-in-Picture or floating window detected');
+        return true;
+      }
+
+      return false;
+    };
+
+    // Start screen mode detection interval
+    screenCheckerInterval.current = window.setInterval(detectScreenModeChange, 2000); // Check every 2 seconds
 
     console.log('🔒 Mobile proctoring system activated');
     const minimumBlurDuration = 2000; // 2 seconds minimum to count as violation
     const shortBlurThreshold = 500; // Under 500ms is likely accidental
-    
+
     // Track app state changes
     const handleVisibilityChange = () => {
       if (!testStarted.current) return;
 
       const now = Date.now();
       const timeSinceTestStart = now - testStartTime.current;
-      
+
       if (timeSinceTestStart <= GRACE_PERIOD_MS) return;
 
       if (document.hidden) {
@@ -417,13 +414,13 @@ useEffect(() => {
         if (blurStartTime.current > 0) {
           const blurDuration = now - blurStartTime.current;
           console.log(`📱 Mobile app returned to foreground after ${blurDuration}ms`);
-          
+
           if (blurDuration > minimumBlurDuration) {
-            addViolation('MOBILE_APP_SWITCH', `Switched away from test app for ${Math.round(blurDuration/1000)} seconds`);
+            addViolation('MOBILE_APP_SWITCH', `Switched away from test app for ${Math.round(blurDuration / 1000)} seconds`);
           } else if (blurDuration > shortBlurThreshold) {
             console.log('⚠️ Short app switch detected but under threshold');
           }
-          
+
           blurStartTime.current = 0;
         }
         lastActiveTime.current = now;
@@ -433,10 +430,10 @@ useEffect(() => {
     // Enhanced focus/blur detection for mobile
     const handleWindowBlur = () => {
       if (!testStarted.current) return;
-      
+
       const now = Date.now();
       const timeSinceTestStart = now - testStartTime.current;
-      
+
       if (timeSinceTestStart <= GRACE_PERIOD_MS) return;
 
       blurStartTime.current = now;
@@ -445,44 +442,44 @@ useEffect(() => {
 
     const handleWindowFocus = () => {
       if (!testStarted.current || blurStartTime.current === 0) return;
-      
+
       const now = Date.now();
       const blurDuration = now - blurStartTime.current;
-      
+
       console.log(`📱 Mobile browser window regained focus after ${blurDuration}ms`);
-      
+
       if (blurDuration > minimumBlurDuration) {
-        addViolation('MOBILE_FOCUS_LOSS', `Lost focus for ${Math.round(blurDuration/1000)} seconds`);
+        addViolation('MOBILE_FOCUS_LOSS', `Lost focus for ${Math.round(blurDuration / 1000)} seconds`);
       }
-      
+
       blurStartTime.current = 0;
       lastActiveTime.current = now;
     };
 
     // Detect orientation changes (potential screen recording or split screen)
-  const handleOrientationChange = () => {
-    if (!testStarted.current) return;
-    
-    const now = Date.now();
-    const timeSinceTestStart = now - testStartTime.current;
-    
-    if (timeSinceTestStart <= GRACE_PERIOD_MS) return;
+    const handleOrientationChange = () => {
+      if (!testStarted.current) return;
 
-    console.log('📱 Device orientation changed - potential screen recording or split screen');
-    addViolation('MOBILE_ORIENTATION_CHANGE', 'Device orientation changed during test');
-    
-    // Update original window size reference after orientation change
-    // This prevents false positives after legitimate orientation changes
-    setTimeout(() => {
-      if (originalWindowSize.current) {
-        originalWindowSize.current = {
-          width: window.innerWidth,
-          height: window.innerHeight
-        };
-        console.log(`Updated screen size after orientation: ${originalWindowSize.current.width}x${originalWindowSize.current.height}`);
-      }
-    }, 1000); // Small delay to let resize complete
-  };
+      const now = Date.now();
+      const timeSinceTestStart = now - testStartTime.current;
+
+      if (timeSinceTestStart <= GRACE_PERIOD_MS) return;
+
+      console.log('📱 Device orientation changed - potential screen recording or split screen');
+      addViolation('MOBILE_ORIENTATION_CHANGE', 'Device orientation changed during test');
+
+      // Update original window size reference after orientation change
+      // This prevents false positives after legitimate orientation changes
+      setTimeout(() => {
+        if (originalWindowSize.current) {
+          originalWindowSize.current = {
+            width: window.innerWidth,
+            height: window.innerHeight
+          };
+          console.log(`Updated screen size after orientation: ${originalWindowSize.current.width}x${originalWindowSize.current.height}`);
+        }
+      }, 1000); // Small delay to let resize complete
+    };
 
     // Detect potential screen recording through screen recording API if available
     const detectScreenRecording = async () => {
@@ -491,34 +488,34 @@ useEffect(() => {
           // This is a basic detection - modern browsers restrict this
           const checkRecording = () => {
             if (!testStarted.current) return;
-            
+
             // Check if screen is being captured (limited browser support)
             if ('screen' in window && (window.screen as any).isExtended) {
               console.log('📱 Potential screen sharing detected');
               addViolation('MOBILE_SCREEN_CAPTURE', 'Potential screen recording or sharing detected');
             }
           };
-          
+
           // Check periodically
           const recordingCheckInterval = setInterval(checkRecording, 10000); // Every 10 seconds
-          
+
           return () => clearInterval(recordingCheckInterval);
         }
       } catch (error) {
         console.log('Screen recording detection not available:', error);
       }
-      return () => {};
+      return () => { };
     };
 
     // Track touch interactions to detect unusual patterns
     let touchCount = 0;
     let rapidTouchStart = 0;
-    
+
     const handleTouchStart = (e: TouchEvent) => {
       if (!testStarted.current) return;
-      
+
       const now = Date.now();
-      
+
       // Detect rapid multi-touch (potential screenshot gesture)
       if (e.touches.length > 1) {
         if (now - rapidTouchStart < 1000) {
@@ -538,7 +535,7 @@ useEffect(() => {
     // Context menu detection (long press)
     const handleContextMenu = (e: Event) => {
       if (!testStarted.current) return;
-      
+
       e.preventDefault();
       console.log('📱 Mobile context menu attempt detected');
       addViolation('MOBILE_CONTEXT_MENU', 'Attempted to access context menu on mobile');
@@ -547,7 +544,7 @@ useEffect(() => {
     // Clipboard monitoring for mobile copy/paste
     const handleMobileClipboard = async () => {
       if (!testStarted.current) return;
-      
+
       try {
         if ('clipboard' in navigator) {
           // Monitor clipboard changes (limited by browser security)
@@ -562,33 +559,33 @@ useEffect(() => {
               // Silently fail - clipboard access is restricted
             }
           };
-          
+
           const clipboardInterval = setInterval(checkClipboard, 5000); // Every 5 seconds
           return () => clearInterval(clipboardInterval);
         }
       } catch (error) {
         console.log('Mobile clipboard monitoring not available:', error);
       }
-      return () => {};
+      return () => { };
     };
 
-  // Set up all mobile event listeners
-  document.addEventListener('visibilitychange', handleVisibilityChange);
-  window.addEventListener('blur', handleWindowBlur);
-  window.addEventListener('focus', handleWindowFocus);
-  window.addEventListener('orientationchange', handleOrientationChange);
-  window.addEventListener('resize', detectScreenModeChange); // Detect screen size changes
-  document.addEventListener('touchstart', handleTouchStart, { passive: false });
-  document.addEventListener('contextmenu', handleContextMenu);
-  
-  // For Android specifically, detect split screen attempts
-  if (isAndroid()) {
-    console.log('📱 Enhanced Android-specific proctoring activated');
-    
-    // Try to prevent split screen on Android using CSS
-    const style = document.createElement('style');
-    style.id = 'mobile-proctor-styles';
-    style.textContent = `
+    // Set up all mobile event listeners
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('blur', handleWindowBlur);
+    window.addEventListener('focus', handleWindowFocus);
+    window.addEventListener('orientationchange', handleOrientationChange);
+    window.addEventListener('resize', detectScreenModeChange); // Detect screen size changes
+    document.addEventListener('touchstart', handleTouchStart, { passive: false });
+    document.addEventListener('contextmenu', handleContextMenu);
+
+    // For Android specifically, detect split screen attempts
+    if (isAndroid()) {
+      console.log('📱 Enhanced Android-specific proctoring activated');
+
+      // Try to prevent split screen on Android using CSS
+      const style = document.createElement('style');
+      style.id = 'mobile-proctor-styles';
+      style.textContent = `
       /* Mobile Test Security Styles - Allow Scrolling */
       html, body {
         width: 100% !important;
@@ -621,39 +618,39 @@ useEffect(() => {
         user-select: text !important;
       }
     `;
-    document.head.appendChild(style);
-    
-    // Prevent Android back button
-    const preventBackButton = (event: PopStateEvent) => {
-      if (!testStarted.current) return;
-      
-      // Add a new history entry to prevent going back
+      document.head.appendChild(style);
+
+      // Prevent Android back button
+      const preventBackButton = (event: PopStateEvent) => {
+        if (!testStarted.current) return;
+
+        // Add a new history entry to prevent going back
+        history.pushState(null, '', window.location.pathname);
+
+        console.log('📱 Android back button prevented');
+        addViolation('ANDROID_BACK_BUTTON', 'Attempted to use back button during test');
+
+        // Show alert to user
+        alert('Navigation is blocked during the test. Please use the test interface navigation.');
+      };
+
+      // Set up back button prevention
+      window.addEventListener('popstate', preventBackButton);
+      // Add initial history entry to prevent back navigation
       history.pushState(null, '', window.location.pathname);
-      
-      console.log('📱 Android back button prevented');
-      addViolation('ANDROID_BACK_BUTTON', 'Attempted to use back button during test');
-      
-      // Show alert to user
-      alert('Navigation is blocked during the test. Please use the test interface navigation.');
-    };
-    
-    // Set up back button prevention
-    window.addEventListener('popstate', preventBackButton);
-    // Add initial history entry to prevent back navigation
-    history.pushState(null, '', window.location.pathname);
-    
-    // Lock orientation to portrait if possible (helps prevent split screen)
-    try {
-      if (screen.orientation && screen.orientation.lock) {
-        screen.orientation.lock('portrait')
-          .then(() => console.log('📱 Locked to portrait orientation'))
-          .catch(err => console.log('Failed to lock orientation:', err));
+
+      // Lock orientation to portrait if possible (helps prevent split screen)
+      try {
+        if (screen.orientation && screen.orientation.lock) {
+          screen.orientation.lock('portrait')
+            .then(() => console.log('📱 Locked to portrait orientation'))
+            .catch(err => console.log('Failed to lock orientation:', err));
+        }
+      } catch (error) {
+        console.log('Orientation locking not supported:', error);
       }
-    } catch (error) {
-      console.log('Orientation locking not supported:', error);
     }
-  }
-    
+
     // Initialize additional detection systems
     const cleanupScreenRecording = detectScreenRecording();
     const cleanupClipboard = handleMobileClipboard();
@@ -661,65 +658,45 @@ useEffect(() => {
     // Periodic activity check
     const activityCheck = setInterval(() => {
       if (!testStarted.current) return;
-      
+
       const now = Date.now();
       const inactiveTime = now - lastActiveTime.current;
-      
+
       // If inactive for more than 2 minutes, it might indicate cheating
       if (inactiveTime > 120000) {
         console.log('📱 Extended inactivity detected');
-        addViolation('MOBILE_INACTIVITY', `No activity for ${Math.round(inactiveTime/60000)} minutes`);
+        addViolation('MOBILE_INACTIVITY', `No activity for ${Math.round(inactiveTime / 60000)} minutes`);
         lastActiveTime.current = now;
       }
     }, 30000); // Check every 30 seconds
 
-  // Cleanup function
-  return () => {
-    document.removeEventListener('visibilitychange', handleVisibilityChange);
-    window.removeEventListener('blur', handleWindowBlur);
-    window.removeEventListener('focus', handleWindowFocus);
-    window.removeEventListener('orientationchange', handleOrientationChange);
-    window.removeEventListener('resize', detectScreenModeChange);
-    document.removeEventListener('touchstart', handleTouchStart);
-    document.removeEventListener('contextmenu', handleContextMenu);
-    
-    // Remove mobile proctor styles
-    const styleElement = document.getElementById('mobile-proctor-styles');
-    if (styleElement) {
-      styleElement.remove();
-    }
-    
-    // Clear all intervals
-    clearInterval(activityCheck);
-    if (screenCheckerInterval.current !== null) {
-      clearInterval(screenCheckerInterval.current);
-      screenCheckerInterval.current = null;
-    }
-    
-    cleanupScreenRecording.then(cleanup => cleanup()).catch(() => {});
-    cleanupClipboard.then(cleanup => cleanup()).catch(() => {});
-  };
-  
-  // Force fullscreen if exited and display warning
-  const forceFullscreenInterval = setInterval(() => {
-    // Only enforce for non-mobile or if specifically configured
-    if (!document.fullscreenElement && 
-        testStarted.current && 
-        Date.now() - testStartTime.current > GRACE_PERIOD_MS) {
-      
-      // Force back into fullscreen
-      enterFullscreen().catch(console.error);
-      
-      // Show warning message
-      console.log('📱 Enforcing fullscreen mode after detection of exit');
-    }
-  }, 5000); // Check every 5 seconds
-  
-  // Clear the force fullscreen interval on cleanup
-  return () => {
-    clearInterval(forceFullscreenInterval);
-  };
-  }, [enableMobileProctoring, addViolation]);
+    // Cleanup function
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('blur', handleWindowBlur);
+      window.removeEventListener('focus', handleWindowFocus);
+      window.removeEventListener('orientationchange', handleOrientationChange);
+      window.removeEventListener('resize', detectScreenModeChange);
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('contextmenu', handleContextMenu);
+
+      // Remove mobile proctor styles
+      const styleElement = document.getElementById('mobile-proctor-styles');
+      if (styleElement) {
+        styleElement.remove();
+      }
+
+      // Clear all intervals
+      clearInterval(activityCheck);
+      if (screenCheckerInterval.current !== null) {
+        clearInterval(screenCheckerInterval.current);
+        screenCheckerInterval.current = null;
+      }
+
+      cleanupScreenRecording.then(cleanup => cleanup()).catch(() => { });
+      cleanupClipboard.then(cleanup => cleanup()).catch(() => { });
+    };
+  }, [enableMobileProctoring, addViolation, enterFullscreen]);
 
   // Stop proctoring tracking
   const stopProctoring = useCallback(() => {

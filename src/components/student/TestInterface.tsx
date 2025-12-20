@@ -919,9 +919,11 @@ const TestInterface: React.FC = () => {
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-sm font-medium text-blue-900">
-                  Violations: {proctorState.violationCount}/3
-                </p>
+                {proctorState.violationCount > 0 && (
+                  <p className="text-sm font-medium text-blue-900 dark:text-blue-300">
+                    Violations: {proctorState.violationCount}/3
+                  </p>
+                )}
                 {!proctorState.isFullscreen && (
                   <button
                     onClick={enterFullscreen}
@@ -959,10 +961,12 @@ const TestInterface: React.FC = () => {
                 </div>
               </div>
               <div className="text-right">
-                <p className={`text-sm font-medium ${proctorState.violationCount > 0 ? 'text-red-900' : 'text-orange-900'
-                  }`}>
-                  Violations: {proctorState.violationCount}/3
-                </p>
+                {proctorState.violationCount > 0 && (
+                  <p className={`text-sm font-medium ${proctorState.violationCount > 0 ? 'text-red-900' : 'text-orange-900'
+                    }`}>
+                    Violations: {proctorState.violationCount}/3
+                  </p>
+                )}
                 {proctorState.violationCount >= 2 && (
                   <p className="text-xs text-red-700 font-bold mt-1">
                     FINAL WARNING!
