@@ -19,109 +19,179 @@
 ## 📋 Table of Contents
 
 - [Overview](#-overview)
-- [Features](#-features)
+- [Architecture](#-architecture)
 - [Tech Stack](#-tech-stack)
+- [Features](#-features)
 - [Prerequisites](#-prerequisites)
 - [Installation](#-installation)
 - [Firebase Setup](#-firebase-setup)
 - [Environment Configuration](#-environment-configuration)
 - [Running the Project](#-running-the-project)
-- [Creating Admin Users](#-creating-admin-users)
 - [Project Structure](#-project-structure)
-- [Key Features Documentation](#-key-features-documentation)
-- [EmailJS Configuration](#-emailjs-configuration)
+- [Core Systems](#-core-systems)
+- [Component Architecture](#-component-architecture)
+- [State Management](#-state-management)
+- [API Integration](#-api-integration)
+- [Styling System](#-styling-system)
+- [Testing](#-testing)
+- [Deployment](#-deployment)
 - [Contributing](#-contributing)
-- [License](#-license)
 
 ---
 
 ## 🎯 Overview
 
-**OPTIMUM** is a comprehensive Adaptive Testing System designed for educational institutions. It features intelligent difficulty adjustment, AI-powered question generation, real-time analytics, and a modern, responsive user interface.
+**OPTIMUM** is a comprehensive Adaptive Testing System built with modern web technologies. It features intelligent difficulty adjustment, AI-powered question generation, real-time analytics, proctoring capabilities, and a premium user interface with smooth animations.
 
-The platform supports two user roles:
-- **Students**: Take adaptive tests, track progress, view analytics
-- **Administrators**: Create tests, manage questions, view student performance, generate AI questions
+### Key Highlights
+
+- **Adaptive Algorithm**: Dynamic difficulty adjustment based on real-time performance
+- **AI Integration**: OpenRouter AI for automated question generation from PDFs
+- **Real-time Database**: Firebase Realtime Database for instant synchronization
+- **Modern UI/UX**: Custom animations, dark mode, responsive design
+- **Performance Tracking**: Comprehensive analytics and visualization
+- **Proctoring**: Tab switching and fullscreen monitoring
+- **Accessibility**: WCAG compliant with keyboard navigation
 
 ---
 
-## ✨ Features
+## 🏗️ Architecture
 
-### For Students
-- 🎓 **Adaptive Testing**: Questions adjust difficulty based on performance
-- 📊 **Real-time Analytics**: Track progress, scores, and performance metrics
-- 🏆 **Leaderboard**: Compete with peers
-- 📈 **Performance Dashboard**: Visualize test history and improvements
-- 🌓 **Dark Mode**: Comfortable testing experience
-- 📱 **Responsive Design**: Works on all devices
+### System Architecture
 
-### For Administrators
-- 📝 **Test Creation**: Create tests with multiple question types
-- 🤖 **AI Question Generation**: Upload PDF syllabi to auto-generate questions
-- 📤 **Bulk Import**: Import questions via Excel/CSV
-- 📊 **Analytics Dashboard**: View student performance and test statistics
-- 👥 **User Management**: Monitor student progress
-- ⚙️ **Adaptive Configuration**: Enable/disable adaptive mode per test
-- 🎯 **Difficulty Assignment**: Assign difficulty levels to questions
+```
+┌─────────────────────────────────────────────────────────────┐
+│                         Frontend (React)                     │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
+│  │   Student    │  │    Admin     │  │    Auth      │      │
+│  │  Dashboard   │  │  Dashboard   │  │   System     │      │
+│  └──────────────┘  └──────────────┘  └──────────────┘      │
+│                                                               │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │         Adaptive Test Engine (Client-side)           │   │
+│  └──────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Firebase Services                         │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
+│  │     Auth     │  │   Realtime   │  │   Storage    │      │
+│  │              │  │   Database   │  │              │      │
+│  └──────────────┘  └──────────────┘  └──────────────┘      │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    External Services                         │
+│  ┌──────────────┐  ┌──────────────┐                         │
+│  │  OpenRouter  │  │   EmailJS    │                         │
+│  │      AI      │  │              │                         │
+│  └──────────────┘  └──────────────┘                         │
+└─────────────────────────────────────────────────────────────┘
+```
 
-### Core Features
-- 🔐 **Secure Authentication**: Firebase Authentication
-- 🔄 **Real-time Database**: Firebase Realtime Database
-- 🎨 **Modern UI**: Clean, minimal design with smooth animations
-- 📧 **Contact Form**: EmailJS integration for inquiries
-- 🌐 **About/Contact Pages**: Comprehensive information pages
-- 🔍 **Search & Filter**: Easy test and question management
+### Data Flow
+
+1. **Authentication**: Firebase Auth → User Context → Protected Routes
+2. **Test Taking**: Student → Adaptive Engine → Firebase DB → Real-time Updates
+3. **AI Generation**: PDF Upload → OpenRouter API → Question Parsing → Database
+4. **Analytics**: Database → Performance Service → Chart.js Visualization
 
 ---
 
 ## 🛠️ Tech Stack
 
-### Frontend
-- **React 18.3.1** - UI library
-- **TypeScript 5.5.3** - Type-safe JavaScript
-- **Vite 5.4.2** - Build tool and dev server
-- **TailwindCSS 3.4.1** - Utility-first CSS framework
+### Frontend Core
+- **React 18.3.1** - Component-based UI library
+- **TypeScript 5.5.3** - Type-safe development
+- **Vite 5.4.2** - Lightning-fast build tool
 - **React Router DOM 7.7.1** - Client-side routing
-- **Lucide React** - Icon library
+
+### Styling & UI
+- **TailwindCSS 3.4.1** - Utility-first CSS framework
+- **Custom CSS Animations** - Smooth transitions and effects
+- **Lucide React** - Modern icon library
+- **Dark Mode** - System-aware theme switching
 
 ### Backend & Services
 - **Firebase 12.0.0**
-  - Authentication
-  - Realtime Database
-  - Storage
-- **EmailJS** - Contact form email service
-- **OpenRouter AI** - AI question generation
+  - Authentication (Email/Password, Google)
+  - Realtime Database (NoSQL)
+  - Storage (File uploads)
+- **OpenRouter AI** - Question generation
+- **EmailJS** - Contact form emails
 
-### Additional Libraries
-- **Chart.js** - Data visualization
-- **React Toastify** - Notifications
-- **XLSX** - Excel file processing
-- **PDF.js** - PDF parsing
-- **jsPDF** - PDF generation
-- **html2canvas** - Screenshot generation
+### Data Visualization
+- **Chart.js 4.5.0** - Interactive charts
+- **React Chart.js 2** - React wrapper
+
+### Document Processing
+- **XLSX 0.18.5** - Excel file parsing
+- **PDF.js 5.4.54** - PDF text extraction
+- **jsPDF 3.0.3** - PDF generation
+- **html2canvas 1.4.1** - Screenshot capture
+
+### Development Tools
+- **ESLint** - Code linting
+- **TypeScript ESLint** - TS-specific linting
+- **PostCSS** - CSS processing
+- **Autoprefixer** - CSS vendor prefixes
+
+---
+
+## ✨ Features
+
+### Student Features
+- ✅ Adaptive test-taking with real-time difficulty adjustment
+- ✅ Performance dashboard with charts and analytics
+- ✅ Test history and detailed results
+- ✅ Answer review with color-coded feedback
+- ✅ Leaderboard with department filtering
+- ✅ Profile management with avatar selection
+- ✅ Dark mode support
+- ✅ Mobile-responsive design
+
+### Admin Features
+- ✅ Test creation with manual/AI/bulk import
+- ✅ Question bank management
+- ✅ Student performance analytics
+- ✅ Admin user management
+- ✅ Test configuration (adaptive/non-adaptive)
+- ✅ Difficulty assignment
+- ✅ Real-time test monitoring
+- ✅ PDF result generation
+
+### Technical Features
+- ✅ Real-time database synchronization
+- ✅ Custom sliding squares loader animation
+- ✅ Smooth page transitions
+- ✅ Optimistic UI updates
+- ✅ Error boundary handling
+- ✅ Protected routes
+- ✅ Session management
+- ✅ Performance optimization
 
 ---
 
 ## 📦 Prerequisites
 
-Before you begin, ensure you have the following installed:
-
-- **Node.js** (v18 or higher)
-- **npm** or **yarn**
+- **Node.js** >= 18.0.0
+- **npm** >= 9.0.0 or **yarn** >= 1.22.0
 - **Git**
-- **Firebase Account** (free tier works)
-- **OpenRouter API Key** (for AI features - optional)
-- **EmailJS Account** (for contact form - optional)
+- **Firebase Account** (free tier sufficient)
+- **OpenRouter API Key** (optional, for AI features)
+- **EmailJS Account** (optional, for contact form)
 
 ---
 
 ## 🚀 Installation
 
-### 1. Clone the Repository
+### 1. Clone Repository
 
 ```bash
-git clone https://github.com/yourusername/optimum.git
-cd optimum
+git clone https://github.com/nareshAiNexus/Optimum-test.git
+cd Optimum-test
 ```
 
 ### 2. Install Dependencies
@@ -130,43 +200,49 @@ cd optimum
 npm install
 ```
 
-### 3. Set Up Environment Variables
-
-Copy the `.env.example` file to `.env`:
+### 3. Environment Setup
 
 ```bash
 cp .env.example .env
 ```
 
-Then fill in your actual values (see [Environment Configuration](#-environment-configuration)).
+Edit `.env` with your configuration (see [Environment Configuration](#-environment-configuration))
+
+### 4. Start Development Server
+
+```bash
+npm run dev
+```
+
+Application will be available at `http://localhost:5173`
 
 ---
 
 ## 🔥 Firebase Setup
 
-### Step 1: Create a Firebase Project
+### Step 1: Create Firebase Project
 
-1. Go to [Firebase Console](https://console.firebase.google.com/)
+1. Visit [Firebase Console](https://console.firebase.google.com/)
 2. Click "Add Project"
-3. Enter project name (e.g., "optimum-test")
-4. Follow the setup wizard
+3. Enter project name: `optimum-test`
+4. Disable Google Analytics (optional)
+5. Click "Create Project"
 
 ### Step 2: Enable Authentication
 
-1. In Firebase Console, go to **Build** → **Authentication**
+1. Navigate to **Build** → **Authentication**
 2. Click "Get Started"
-3. Enable **Email/Password** sign-in method
+3. Enable **Email/Password** provider
+4. Enable **Google** provider (optional)
 
 ### Step 3: Create Realtime Database
 
 1. Go to **Build** → **Realtime Database**
 2. Click "Create Database"
-3. Choose a location
-4. Start in **Test Mode** (we'll add rules later)
+3. Select location (closest to your users)
+4. Start in **Test Mode**
 
-### Step 4: Set Up Database Rules
-
-Go to **Realtime Database** → **Rules** tab and paste the following:
+### Step 4: Configure Database Rules
 
 ```json
 {
@@ -205,9 +281,6 @@ Go to **Realtime Database** → **Rules** tab and paste the following:
         ".write": "auth != null && ($uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin')",
         "role": {
           ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'"
-        },
-        "testsCompleted": {
-          ".write": "auth != null && $uid === auth.uid"
         }
       }
     }
@@ -215,54 +288,54 @@ Go to **Realtime Database** → **Rules** tab and paste the following:
 }
 ```
 
-### Step 5: Get Firebase Configuration
+### Step 5: Get Configuration
 
 1. Go to **Project Settings** (gear icon)
-2. Scroll to "Your apps" section
-3. Click the web icon (`</>`)
-4. Register your app
-5. Copy the configuration values to your `.env` file
+2. Scroll to "Your apps"
+3. Click web icon (`</>`)
+4. Register app name: `OPTIMUM`
+5. Copy configuration values to `.env`
 
 ---
 
 ## ⚙️ Environment Configuration
 
-Edit your `.env` file with the following values:
+Create `.env` file in project root:
 
 ```env
-# Firebase Configuration (from Firebase Console)
-VITE_API_KEY=your_firebase_api_key
-VITE_AUTH_DOMAIN=your_project_id.firebaseapp.com
-VITE_DATABASE_URL=https://your_project_id-default-rtdb.firebaseio.com
-VITE_PROJECT_ID=your_project_id
-VITE_STORAGE_BUCKET=your_project_id.firebasestorage.app
-VITE_MESSAGE_SENDER_ID=your_messaging_sender_id
-VITE_APP_ID=your_app_id
-VITE_MEASUREMENT_ID=your_measurement_id
+# Firebase Configuration
+VITE_API_KEY=AIzaSyXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+VITE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_DATABASE_URL=https://your-project-default-rtdb.firebaseio.com
+VITE_PROJECT_ID=your-project-id
+VITE_STORAGE_BUCKET=your-project.firebasestorage.app
+VITE_MESSAGE_SENDER_ID=123456789012
+VITE_APP_ID=1:123456789012:web:abcdef123456
+VITE_MEASUREMENT_ID=G-XXXXXXXXXX
 
-# AI Service (Optional - for AI question generation)
-VITE_AI_API_KEY=your_openrouter_api_key
+# AI Service (Optional)
+VITE_AI_API_KEY=sk-or-v1-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 ```
 
-### Getting OpenRouter API Key (Optional)
+### Getting OpenRouter API Key
 
-1. Go to [OpenRouter.ai](https://openrouter.ai/)
-2. Sign up for an account
-3. Navigate to API Keys section
-4. Create a new API key
-5. Add it to your `.env` file
+1. Visit [OpenRouter.ai](https://openrouter.ai/)
+2. Sign up / Log in
+3. Navigate to **Keys** section
+4. Create new API key
+5. Add to `.env` as `VITE_AI_API_KEY`
 
 ---
 
 ## 🏃 Running the Project
 
-### Development Mode
+### Development
 
 ```bash
 npm run dev
 ```
 
-The application will be available at `http://localhost:5173`
+Runs on `http://localhost:5173` with hot module replacement (HMR)
 
 ### Production Build
 
@@ -270,66 +343,19 @@ The application will be available at `http://localhost:5173`
 npm run build
 ```
 
-### Preview Production Build
+Outputs to `dist/` directory
+
+### Preview Production
 
 ```bash
 npm run preview
 ```
 
-### Lint Code
+### Linting
 
 ```bash
 npm run lint
 ```
-
----
-
-## 👤 Creating Admin Users
-
-### Method 1: Firebase Console (Recommended)
-
-1. **Create a user account** through the app's registration page
-2. **Get the User UID**:
-   - Go to Firebase Console → Authentication
-   - Find the user's UID
-3. **Add admin role**:
-   - Go to Realtime Database → Data tab
-   - Navigate to `users` → `[USER_UID]`
-   - Add a field: `role: "admin"`
-
-### Method 2: Manual Database Entry
-
-1. Go to Firebase Console → Realtime Database
-2. Navigate to the `users` node
-3. Add/Edit user with this structure:
-
-```json
-{
-  "users": {
-    "USER_UID_HERE": {
-      "name": "Admin User",
-      "email": "admin@example.com",
-      "role": "admin",
-      "department": "IT",
-      "registrationNumber": "ADMIN001"
-    }
-  }
-}
-```
-
-### Default Test Credentials
-
-For testing purposes, you can create these accounts:
-
-**Admin Account:**
-- Email: `admin@gmail.com`
-- Password: `admin@123`
-- Role: `admin` (set in database)
-
-**Student Account:**
-- Email: `student@gmail.com`
-- Password: `student@123`
-- Role: `student` (default)
 
 ---
 
@@ -338,222 +364,401 @@ For testing purposes, you can create these accounts:
 ```
 optimum/
 ├── public/
-│   ├── optimum.png          # Logo
-│   └── ...
+│   ├── optimum.png              # App logo
+│   ├── sliding-squares.gif      # Loading animation
+│   └── avatars/                 # Profile avatars
 ├── src/
+│   ├── assets/                  # Static assets
+│   │   └── avatars.js           # Avatar configuration
 │   ├── components/
-│   │   ├── admin/           # Admin components
-│   │   │   ├── CreateTestModal.tsx
+│   │   ├── admin/               # Admin-only components
+│   │   │   ├── AdminDashboard.tsx
+│   │   │   ├── AdminManagement.tsx
 │   │   │   ├── AiGenerationModal.tsx
-│   │   │   └── ...
-│   │   ├── auth/            # Authentication components
+│   │   │   ├── CreateTestModal.tsx
+│   │   │   ├── EditTestModal.tsx
+│   │   │   ├── ResultsView.tsx
+│   │   │   ├── StudentProgressModal.tsx
+│   │   │   └── TestManagement.tsx
+│   │   ├── auth/                # Authentication components
+│   │   │   ├── AdminLoginForm.tsx
+│   │   │   ├── AdminRegisterForm.tsx
+│   │   │   ├── EmailVerification.tsx
 │   │   │   ├── LoginForm.tsx
-│   │   │   ├── RegisterForm.tsx
-│   │   │   └── ...
-│   │   ├── common/          # Shared components
-│   │   │   ├── Navbar.tsx
+│   │   │   └── RegisterForm.tsx
+│   │   ├── common/              # Shared components
 │   │   │   ├── DifficultyBadge.tsx
-│   │   │   └── ...
-│   │   └── student/         # Student components
+│   │   │   ├── LoadingSkeleton.tsx
+│   │   │   ├── Navbar.tsx
+│   │   │   └── ProtectedRoute.tsx
+│   │   ├── debug/               # Debug utilities
+│   │   │   └── EmailVerificationDebug.tsx
+│   │   └── student/             # Student-only components
 │   │       ├── Dashboard.tsx
+│   │       ├── Leaderboard.tsx
+│   │       ├── PerformanceTracker.tsx
+│   │       ├── Profile.tsx
 │   │       ├── TestInterface.tsx
-│   │       └── ...
+│   │       └── TestResult.tsx
+│   ├── contexts/
+│   │   └── AuthContext.tsx      # Authentication context
+│   ├── hooks/
+│   │   ├── useTestProctor.ts    # Proctoring logic
+│   │   └── useTheme.ts          # Theme management
 │   ├── lib/
-│   │   └── firebase.ts      # Firebase configuration
+│   │   └── firebase.ts          # Firebase initialization
 │   ├── pages/
 │   │   ├── AboutUs.tsx
 │   │   ├── ContactUs.tsx
-│   │   └── ...
+│   │   ├── Home.tsx
+│   │   └── PublicDashboard.tsx
 │   ├── services/
-│   │   ├── adaptiveTestService.ts
-│   │   ├── aiService.ts
-│   │   └── ...
+│   │   ├── adaptiveTestService.ts    # Adaptive algorithm
+│   │   ├── aiService.ts              # AI question generation
+│   │   ├── emailService.ts           # Email verification
+│   │   ├── performanceTrackingService.ts
+│   │   └── registrationValidation.ts
+│   ├── styles/
+│   │   └── animations.css       # Custom animations
 │   ├── utils/
-│   │   ├── pdfUtils.ts
-│   │   └── ...
-│   ├── App.tsx              # Main app component
-│   ├── main.tsx             # Entry point
-│   └── index.css            # Global styles
-├── .env.example             # Environment template
+│   │   ├── pdfUtils.ts          # PDF processing
+│   │   ├── testResultsPdfGenerator.ts
+│   │   └── xlsxUtils.ts         # Excel processing
+│   ├── App.tsx                  # Main app component
+│   ├── main.tsx                 # Entry point
+│   └── index.css                # Global styles
+├── .env                         # Environment variables (gitignored)
+├── .env.example                 # Environment template
 ├── .gitignore
+├── eslint.config.js
+├── index.html
 ├── package.json
+├── postcss.config.js
 ├── tailwind.config.js
 ├── tsconfig.json
+├── tsconfig.app.json
+├── tsconfig.node.json
 ├── vite.config.ts
 └── README.md
 ```
 
 ---
 
-## 📚 Key Features Documentation
+## 🔧 Core Systems
 
-### 1. Adaptive Testing System
+### 1. Adaptive Testing Engine
 
-The platform uses an intelligent adaptive difficulty algorithm:
+**Location**: `src/services/adaptiveTestService.ts`
 
-- **Initial Difficulty**: Tests start at medium difficulty
-- **Performance Tracking**: Monitors correct/wrong answer streaks
-- **Difficulty Adjustment**:
-  - 2+ correct answers → difficulty increases
-  - 2+ wrong answers → difficulty decreases
-- **Weighted Scoring**: 
-  - Easy: 1 point
-  - Medium: 2 points
-  - Hard: 3 points
+**Algorithm**:
+```typescript
+// Difficulty progression logic
+if (correctStreak >= 2) {
+  increaseDifficulty();
+} else if (wrongStreak >= 2) {
+  decreaseDifficulty();
+}
 
-**For Administrators:**
-- Toggle adaptive mode when creating tests
-- Assign difficulty levels to questions
-- View difficulty distribution statistics
+// Weighted scoring
+const points = {
+  easy: 1,
+  medium: 2,
+  hard: 3
+};
+```
+
+**Features**:
+- Real-time difficulty adjustment
+- Streak-based progression
+- Weighted scoring system
+- Performance analytics
 
 ### 2. AI Question Generation
 
-Upload PDF syllabi to automatically generate questions:
+**Location**: `src/services/aiService.ts`
 
-1. Click "Create with AI" in test creation
-2. Upload PDF file (drag & drop supported)
-3. Configure number of questions and difficulty
-4. AI generates multiple-choice questions
-5. Review and edit before adding to test
+**Process**:
+1. PDF text extraction using PDF.js
+2. Text chunking (max 4000 chars)
+3. OpenRouter API call with prompt engineering
+4. JSON response parsing
+5. Question validation and formatting
 
-**Requirements:**
-- OpenRouter API key in `.env`
-- PDF file with text content
+**Supported Models**:
+- DeepSeek R1 (default)
+- GPT-4
+- Claude 3
 
-### 3. Bulk Question Import
+### 3. Performance Tracking
 
-Import questions via Excel/CSV:
+**Location**: `src/services/performanceTrackingService.ts`
 
-1. Download the template
-2. Fill in questions, options, and answers
-3. Optional: Add difficulty column
-4. Upload file in test creation modal
-
-**Excel Format:**
-```
-Question | Option A | Option B | Option C | Option D | Correct Answer | Difficulty
----------|----------|----------|----------|----------|----------------|------------
-What...  | Option 1 | Option 2 | Option 3 | Option 4 | A              | medium
-```
-
-### 4. Analytics Dashboard
-
-**Student Analytics:**
-- Test history and scores
+**Metrics**:
+- Average score calculation
+- Test completion rate
 - Performance trends
-- Time spent per test
 - Difficulty progression
+- Time analytics
 
-**Admin Analytics:**
-- Student performance overview
-- Test completion rates
-- Average scores by test
-- Question difficulty distribution
+### 4. Proctoring System
+
+**Location**: `src/hooks/useTestProctor.ts`
+
+**Features**:
+- Tab switch detection
+- Fullscreen monitoring
+- Violation tracking
+- Warning system
+- Auto-submission on violations
 
 ---
 
-## 📧 EmailJS Configuration
+## 🎨 Component Architecture
 
-To enable the contact form:
+### Component Hierarchy
 
-### 1. Create EmailJS Account
+```
+App
+├── AuthContext Provider
+│   ├── Navbar
+│   ├── Routes
+│   │   ├── Public Routes
+│   │   │   ├── Home
+│   │   │   ├── About
+│   │   │   ├── Contact
+│   │   │   └── PublicDashboard
+│   │   ├── Auth Routes
+│   │   │   ├── Login
+│   │   │   └── Register
+│   │   ├── Protected Routes (Student)
+│   │   │   ├── Dashboard
+│   │   │   ├── TestInterface
+│   │   │   ├── TestResult
+│   │   │   ├── Profile
+│   │   │   └── Leaderboard
+│   │   └── Protected Routes (Admin)
+│   │       ├── AdminDashboard
+│   │       ├── TestManagement
+│   │       ├── AdminManagement
+│   │       └── ResultsView
+│   └── Theme Provider
+```
 
-1. Go to [EmailJS.com](https://www.emailjs.com/)
-2. Sign up for a free account
+### Key Components
 
-### 2. Set Up Email Service
+#### TestInterface
+- Manages test state
+- Implements adaptive logic
+- Handles proctoring
+- Timer management
+- Question navigation
 
-1. Go to **Email Services**
-2. Click "Add New Service"
-3. Choose your email provider (Gmail recommended)
-4. Follow the setup wizard
-5. Note your **Service ID** (e.g., `service_optimum`)
+#### PerformanceTracker
+- Fetches performance data
+- Renders charts (Chart.js)
+- Calculates metrics
+- Displays trends
 
-### 3. Create Email Template
+#### CreateTestModal
+- Test creation form
+- Question management
+- AI generation integration
+- Bulk import support
 
-1. Go to **Email Templates**
-2. Click "Create New Template"
-3. Set Template ID to `template_contact`
-4. Use these variables in your template:
-   - `{{from_name}}`
-   - `{{from_email}}`
-   - `{{subject}}`
-   - `{{message}}`
-   - `{{to_email}}`
+---
 
-### 4. Get Public Key
+## 📊 State Management
 
-1. Go to **Account** → **General**
-2. Copy your **Public Key**
+### Context API
 
-### 5. Update Code
-
-Edit `src/pages/ContactUs.tsx` (line 40):
-
+**AuthContext** (`src/contexts/AuthContext.tsx`):
 ```typescript
-'YOUR_PUBLIC_KEY' // Replace with your actual public key
+interface AuthContextType {
+  currentUser: User | null;
+  userData: UserData | null;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  register: (data: RegisterData) => Promise<void>;
+  logout: () => Promise<void>;
+}
+```
+
+### Local State Patterns
+
+1. **Component State**: `useState` for UI state
+2. **Side Effects**: `useEffect` for data fetching
+3. **Custom Hooks**: Reusable logic (useTestProctor, useTheme)
+4. **Refs**: DOM manipulation, timers
+
+### Data Flow
+
+```
+Firebase DB → Service Layer → Component State → UI
+     ↑                                          ↓
+     └──────────── User Actions ────────────────┘
 ```
 
 ---
 
-## 🤝 Contributing
+## 🌐 API Integration
 
-Contributions are welcome! Please follow these steps:
+### Firebase Realtime Database
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+**Structure**:
+```json
+{
+  "users": {
+    "userId": {
+      "name": "string",
+      "email": "string",
+      "role": "student | admin",
+      "department": "string",
+      "registrationNumber": "string"
+    }
+  },
+  "tests": {
+    "testId": {
+      "title": "string",
+      "description": "string",
+      "questions": ["questionId"],
+      "duration": "number",
+      "isAdaptive": "boolean"
+    }
+  },
+  "questions": {
+    "questionId": {
+      "question": "string",
+      "options": ["string"],
+      "correctAnswer": "number",
+      "difficulty": "easy | medium | hard"
+    }
+  },
+  "responses": {
+    "testId": {
+      "userId": {
+        "score": "number",
+        "answers": ["number"],
+        "completedAt": "timestamp"
+      }
+    }
+  }
+}
+```
 
-### Development Guidelines
+### OpenRouter AI API
 
-- Follow TypeScript best practices
-- Use TailwindCSS for styling
-- Write meaningful commit messages
-- Test your changes thoroughly
-- Update documentation as needed
+**Endpoint**: `https://openrouter.ai/api/v1/chat/completions`
+
+**Request**:
+```typescript
+{
+  model: "deepseek/deepseek-r1",
+  messages: [{
+    role: "user",
+    content: "Generate questions from: [PDF_TEXT]"
+  }]
+}
+```
 
 ---
 
-## 📄 License
+## 🎨 Styling System
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+### TailwindCSS Configuration
+
+**Custom Theme** (`tailwind.config.js`):
+```javascript
+theme: {
+  extend: {
+    colors: {
+      'warp-primary': '#6366f1',
+      'warp-secondary': '#8b5cf6'
+    },
+    animation: {
+      'slide-in-right': 'slideInRight 0.3s ease-out',
+      'slide-out-right': 'slideOutRight 0.3s ease-in'
+    }
+  }
+}
+```
+
+### Custom Animations
+
+**Sliding Squares Loader** (`src/styles/animations.css`):
+```css
+@keyframes slide-square-loader-1 {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(0, 32px); }
+  50% { transform: translate(32px, 32px); }
+  75% { transform: translate(32px, 0); }
+}
+
+.sliding-squares-loader {
+  width: 64px;
+  height: 64px;
+}
+```
+
+### Dark Mode
+
+**Implementation**:
+- System preference detection
+- localStorage persistence
+- CSS variables for theming
+- Smooth transitions
 
 ---
 
-## 🙏 Acknowledgments
+## 🧪 Testing
 
-- **React Team** for the amazing framework
-- **Firebase** for backend services
-- **Vite** for the blazing-fast build tool
-- **TailwindCSS** for the utility-first CSS framework
-- **Lucide** for beautiful icons
-- **OpenRouter** for AI capabilities
+### Manual Testing Checklist
 
----
+- [ ] User registration and login
+- [ ] Admin creation and permissions
+- [ ] Test creation (manual, AI, bulk)
+- [ ] Adaptive test taking
+- [ ] Performance analytics
+- [ ] PDF generation
+- [ ] Dark mode switching
+- [ ] Mobile responsiveness
 
-## 📞 Support
+### Test Accounts
 
-For support, email optimum-test@gmail.com or create an issue in the GitHub repository.
+**Admin**:
+- Email: `admin@gmail.com`
+- Password: `admin@123`
+
+**Student**:
+- Email: `student@gmail.com`
+- Password: `student@123`
 
 ---
 
 ## 🚀 Deployment
 
-### Netlify
+### Vercel (Recommended)
 
-1. Push your code to GitHub
-2. Connect your repository to Netlify
-3. Set environment variables in Netlify dashboard
-4. Deploy!
-
-### Vercel
-
-1. Push your code to GitHub
+1. Push code to GitHub
 2. Import project in Vercel
 3. Add environment variables
-4. Deploy!
+4. Deploy
+
+**Configuration** (`vercel.json`):
+```json
+{
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
+```
+
+### Netlify
+
+1. Connect GitHub repository
+2. Build command: `npm run build`
+3. Publish directory: `dist`
+4. Add environment variables
+5. Deploy
 
 ### Firebase Hosting
 
@@ -567,10 +772,67 @@ firebase deploy
 
 ---
 
+## 🤝 Contributing
+
+### Development Workflow
+
+1. Fork repository
+2. Create feature branch: `git checkout -b feature/amazing-feature`
+3. Commit changes: `git commit -m 'Add amazing feature'`
+4. Push to branch: `git push origin feature/amazing-feature`
+5. Open Pull Request
+
+### Code Style
+
+- Use TypeScript for type safety
+- Follow React best practices
+- Use TailwindCSS for styling
+- Write meaningful commit messages
+- Add comments for complex logic
+
+### Commit Convention
+
+```
+feat: Add new feature
+fix: Bug fix
+docs: Documentation update
+style: Code style changes
+refactor: Code refactoring
+test: Add tests
+chore: Maintenance tasks
+```
+
+---
+
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) file
+
+---
+
+## 🙏 Acknowledgments
+
+- React Team for the framework
+- Firebase for backend services
+- Vite for build tooling
+- TailwindCSS for styling
+- Lucide for icons
+- OpenRouter for AI capabilities
+
+---
+
+## 📞 Support
+
+- **Email**: optimum-test@gmail.com
+- **Issues**: [GitHub Issues](https://github.com/nareshAiNexus/Optimum-test/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/nareshAiNexus/Optimum-test/discussions)
+
+---
+
 <div align="center">
 
 **Made with ❤️ by the OPTIMUM Team**
 
-[Report Bug](https://github.com/yourusername/optimum/issues) · [Request Feature](https://github.com/yourusername/optimum/issues)
+[Report Bug](https://github.com/nareshAiNexus/Optimum-test/issues) · [Request Feature](https://github.com/nareshAiNexus/Optimum-test/issues)
 
 </div>
