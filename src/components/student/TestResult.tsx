@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ref, get } from 'firebase/database';
-import { Trophy, Clock, CheckCircle, XCircle, ArrowLeft, Loader2, AlertTriangle, Eye, EyeOff, TrendingUp, Download } from 'lucide-react';
+import { Trophy, Clock, CheckCircle, XCircle, ArrowLeft, Loader2, AlertTriangle, Eye, EyeOff, TrendingUp, Download, X } from 'lucide-react';
 import { database } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import Navbar from '../common/Navbar';
@@ -46,6 +46,7 @@ const TestResult: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showAnswers, setShowAnswers] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
 
   // useEffect to fetch all necessary data when the component mounts
@@ -157,6 +158,15 @@ const TestResult: React.FC = () => {
     console.log('Calculated percentage:', percentage);
 
     return isNaN(percentage) ? 0 : percentage;
+  };
+
+  // Handle panel close with animation
+  const handleClosePanel = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setShowAnswers(false);
+      setIsClosing(false);
+    }, 300); // Full animation duration - components stay mounted during animation
   };
 
   // Helper function to get the grade and associated color
@@ -393,147 +403,158 @@ const TestResult: React.FC = () => {
           </div>
         </div>
 
-        {/* Show Answers Section */}
-        {!showAnswers ? (
-          <div className="flex justify-end mb-4">
-            <button
-              onClick={() => setShowAnswers(true)}
-              className="btn-modern bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50"
+        {/* Show Answers Button */}
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={() => showAnswers ? handleClosePanel() : setShowAnswers(true)}
+            className={`btn-modern ${showAnswers
+              ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/50'
+              : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50'
+              }`}
+          >
+            {showAnswers ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            <span>{showAnswers ? 'Hide Answers' : 'Show Answers'}</span>
+          </button>
+        </div>
+
+        {/* Animated Sliding Panel for Answers */}
+        {(showAnswers || isClosing) && (
+          <>
+            {/* Backdrop Overlay */}
+            <div
+              className={`fixed inset-0 bg-black/60 z-[9998] cursor-pointer ${isClosing ? 'animate-fade-out' : 'animate-fade-in'}`}
+              onClick={handleClosePanel}
+              style={{ pointerEvents: 'auto' }}
+            />
+
+            {/* Sliding Panel */}
+            <div
+              className={`fixed top-0 right-0 bottom-0 w-full md:w-[600px] bg-white dark:bg-gray-900 shadow-2xl z-[9999] ${isClosing ? 'animate-slide-out-right' : 'animate-slide-in-right'}`}
+              style={{ display: 'flex', flexDirection: 'column' }}
             >
-              <Eye className="h-4 w-4" />
-              <span>Show Answers</span>
-            </button>
-          </div>
-        ) : (
-          <div className="card-modern glass p-3 mb-4">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-base font-semibold text-gray-900 dark:text-white">Answer Review</h3>
-              <button
-                onClick={() => setShowAnswers(false)}
-                className="btn-modern bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/50"
-              >
-                <EyeOff className="h-4 w-4" />
-                <span>Hide Answers</span>
-              </button>
-            </div>
+              {/* Scrollable Content */}
+              <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }} className="space-y-4">
+                {/* Legend with Close Button */}
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700/50 rounded-lg p-3 sticky top-0 z-10 flex items-center justify-between">
+                  <p className="text-sm text-blue-800 dark:text-blue-300 flex-1">
+                    <strong>Legend:</strong>
+                    <span className="inline-flex items-center ml-2 mr-4">
+                      <span className="w-3 h-3 bg-green-200 dark:bg-green-900/50 border border-green-400 dark:border-green-600 rounded mr-1"></span>
+                      Correct Answer
+                    </span>
+                    <span className="inline-flex items-center">
+                      <span className="w-3 h-3 bg-red-200 dark:bg-red-900/50 border border-red-400 dark:border-red-600 rounded mr-1"></span>
+                      Your Answer (Incorrect)
+                    </span>
+                  </p>
+                  <button
+                    onClick={handleClosePanel}
+                    className="ml-2 p-1 hover:bg-blue-100 dark:hover:bg-blue-800/30 rounded transition-colors flex-shrink-0"
+                    aria-label="Close panel"
+                    type="button"
+                  >
+                    <X className="h-5 w-5 text-blue-600 dark:text-blue-300" />
+                  </button>
+                </div>
 
-            <div className="space-y-4">
-              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700/50 rounded-lg p-3">
-                <p className="text-sm text-blue-800 dark:text-blue-300">
-                  <strong>Legend:</strong>
-                  <span className="inline-flex items-center ml-2 mr-4">
-                    <span className="w-3 h-3 bg-green-200 dark:bg-green-900/50 border border-green-400 dark:border-green-600 rounded mr-1"></span>
-                    Correct Answer
-                  </span>
-                  <span className="inline-flex items-center">
-                    <span className="w-3 h-3 bg-red-200 dark:bg-red-900/50 border border-red-400 dark:border-red-600 rounded mr-1"></span>
-                    Your Answer (Incorrect)
-                  </span>
-                </p>
-              </div>
+                {/* Questions */}
+                {questions.length > 0 ? (
+                  questions.map((question, index) => {
+                    const userAnswerInfo = getUserAnswerInfo(question.id);
+                    const isCorrect = userAnswerInfo?.isCorrect || false;
 
-              {questions.length > 0 ? (
-                questions.map((question, index) => {
-                  const userAnswerInfo = getUserAnswerInfo(question.id);
-                  const userAnswerIndex = userAnswerInfo?.index;
-                  const isCorrect = userAnswerInfo?.isCorrect || false;
-
-                  return (
-                    <div key={question.id} className="card-modern p-4">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex-1">
-                          <div className="flex items-center mb-2">
-                            <span className="text-sm font-medium text-gray-500 dark:text-gray-400 mr-2">Question {index + 1}</span>
-                            {userAnswerInfo ? (
-                              isCorrect ? (
-                                <span className="status-success">
-                                  <CheckCircle className="h-3 w-3 mr-1" />
-                                  Correct
-                                </span>
+                    return (
+                      <div key={question.id} className="card-modern p-4 animate-fade-in-up" style={{ animationDelay: `${index * 50}ms` }}>
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex-1">
+                            <div className="flex items-center mb-2">
+                              <span className="text-sm font-medium text-gray-500 dark:text-gray-400 mr-2">Question {index + 1}</span>
+                              {userAnswerInfo ? (
+                                isCorrect ? (
+                                  <span className="status-success">
+                                    <CheckCircle className="h-3 w-3 mr-1" />
+                                    Correct
+                                  </span>
+                                ) : (
+                                  <span className="status-error">
+                                    <XCircle className="h-3 w-3 mr-1" />
+                                    Incorrect
+                                  </span>
+                                )
                               ) : (
-                                <span className="status-error">
-                                  <XCircle className="h-3 w-3 mr-1" />
-                                  Incorrect
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300">
+                                  Not Answered
                                 </span>
-                              )
-                            ) : (
-                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300">
-                                Not Answered
-                              </span>
-                            )}
+                              )}
+                            </div>
+                            {renderQuestionContent(question, index)}
                           </div>
-                          {renderQuestionContent(question, index)}
                         </div>
-                      </div>
 
-                      <div className="space-y-2">
-                        {question.options.map((option, optionIndex) => {
-                          // Compare using actual text values instead of indices to avoid shuffling issues
-                          const isUserAnswer = userAnswerInfo && userAnswerInfo.value === option;
-                          const isCorrectAnswer = question.options[question.correctAnswer] === option;
+                        <div className="space-y-2">
+                          {question.options.map((option, optionIndex) => {
+                            const isUserAnswer = userAnswerInfo && userAnswerInfo.value === option;
+                            const isCorrectAnswer = question.options[question.correctAnswer] === option;
 
-                          let optionClasses = 'w-full text-left p-3 rounded-lg border transition-all duration-200 ';
+                            let optionClasses = 'w-full text-left p-3 rounded-lg border transition-all duration-200 ';
 
-                          if (isUserAnswer && isCorrectAnswer) {
-                            // User got it right - show in green
-                            optionClasses += 'border-green-400 bg-green-200 text-green-900';
-                          } else if (isCorrectAnswer) {
-                            // Correct answer (not selected by user) - show in green
-                            optionClasses += 'border-green-400 bg-green-200 text-green-900';
-                          } else if (isUserAnswer) {
-                            // User's incorrect answer - show in red
-                            optionClasses += 'border-red-400 bg-red-200 text-red-900';
-                          } else {
-                            // Regular option
-                            optionClasses += 'border-gray-200 bg-gray-50 text-gray-700';
-                          }
+                            if (isUserAnswer && isCorrectAnswer) {
+                              optionClasses += 'border-green-400 bg-green-200 text-green-900';
+                            } else if (isCorrectAnswer) {
+                              optionClasses += 'border-green-400 bg-green-200 text-green-900';
+                            } else if (isUserAnswer) {
+                              optionClasses += 'border-red-400 bg-red-200 text-red-900';
+                            } else {
+                              optionClasses += 'border-gray-200 bg-gray-50 text-gray-700';
+                            }
 
-                          return (
-                            <div key={optionIndex} className={optionClasses}>
-                              <div className="flex items-center">
-                                <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-sm font-medium mr-3 ${isCorrectAnswer
-                                  ? 'bg-green-600 text-white'
-                                  : isUserAnswer
-                                    ? 'bg-red-600 text-white'
-                                    : 'bg-gray-400 text-white'
-                                  }`}>
-                                  {String.fromCharCode(65 + optionIndex)}
-                                </span>
-                                <span className="flex-1">{option}</span>
-                                <div className="flex items-center space-x-2">
-                                  {isCorrectAnswer && (
-                                    <span className="text-xs font-medium text-green-700">Correct</span>
-                                  )}
-                                  {isUserAnswer && !isCorrectAnswer && (
-                                    <span className="text-xs font-medium text-red-700">Your Choice</span>
-                                  )}
+                            return (
+                              <div key={optionIndex} className={optionClasses}>
+                                <div className="flex items-center">
+                                  <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-sm font-medium mr-3 ${isCorrectAnswer
+                                    ? 'bg-green-600 text-white'
+                                    : isUserAnswer
+                                      ? 'bg-red-600 text-white'
+                                      : 'bg-gray-400 text-white'
+                                    }`}>
+                                    {String.fromCharCode(65 + optionIndex)}
+                                  </span>
+                                  <span className="flex-1">{option}</span>
+                                  <div className="flex items-center space-x-2">
+                                    {isCorrectAnswer && (
+                                      <span className="text-xs font-medium text-green-700">Correct</span>
+                                    )}
+                                    {isUserAnswer && !isCorrectAnswer && (
+                                      <span className="text-xs font-medium text-red-700">Your Choice</span>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-
-                      {!userAnswerInfo && (
-                        <div className="mt-3 p-3 bg-gray-100 border border-gray-200 rounded-lg">
-                          <p className="text-sm text-gray-600">
-                            <strong>No answer provided.</strong> The correct answer is:
-                            <span className="font-medium text-green-700">
-                              {String.fromCharCode(65 + question.correctAnswer)} - {question.options[question.correctAnswer]}
-                            </span>
-                          </p>
+                            );
+                          })}
                         </div>
-                      )}
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-gray-500">No questions found for this test.</p>
-                </div>
-              )}
+
+                        {!userAnswerInfo && (
+                          <div className="mt-3 p-3 bg-gray-100 border border-gray-200 rounded-lg">
+                            <p className="text-sm text-gray-600">
+                              <strong>No answer provided.</strong> The correct answer is:
+                              <span className="font-medium text-green-700">
+                                {String.fromCharCode(65 + question.correctAnswer)} - {question.options[question.correctAnswer]}
+                              </span>
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-gray-500">No questions found for this test.</p>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          </>
         )}
 
 
