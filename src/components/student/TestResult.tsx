@@ -426,9 +426,9 @@ const TestResult: React.FC = () => {
         {/* Animated Sliding Panel for Answers */}
         {(showAnswers || isClosing) && (
           <>
-            {/* Backdrop Overlay */}
+            {/* Backdrop Overlay - Fades out faster to prevent black flash */}
             <div
-              className={`fixed inset-0 bg-black/60 z-[9998] cursor-pointer ${isClosing ? 'animate-fade-out' : 'animate-fade-in'}`}
+              className={`fixed inset-0 bg-black/60 z-[9998] cursor-pointer transition-opacity duration-200 ${isClosing ? 'opacity-0' : 'opacity-100'}`}
               onClick={handleClosePanel}
               style={{ pointerEvents: 'auto' }}
             />
