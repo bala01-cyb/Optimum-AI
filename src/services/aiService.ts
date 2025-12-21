@@ -10,6 +10,65 @@ export interface GeneratedQuestion {
  */
 export const aiService = {
     /**
+     * Generate study advice for a test topic
+     * @param title The test title
+     * @param description The test description
+     * @param apiKey The API key for the service
+     * @returns Formatted study advice as HTML string
+     */
+    generateStudyAdvice: async (title: string, description: string, apiKey: string): Promise<string> => {
+        try {
+            const prompt = `
+You are a study advisor. Provide concise study advice for this test:
+
+Test: ${title}
+Description: ${description}
+
+Provide:
+1. Key Topics (3-5 main concepts)
+2. Study Strategies (practical tips)
+3. Important Areas (what to prioritize)
+4. Time Management (brief suggestions)
+
+CRITICAL: Start directly with the advice. NO introductory phrases like "Below is...", "Here's...", or "I'll provide...". Use clear headings and bullet points. Be concise and actionable.
+            `.trim();
+
+            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`,
+                    'HTTP-Referer': window.location.origin,
+                    'X-Title': 'ATS Study Advisor'
+                },
+                body: JSON.stringify({
+                    model: 'tngtech/deepseek-r1t2-chimera:free',
+                    messages: [
+                        { role: 'user', content: prompt }
+                    ],
+                    max_tokens: 2000
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`AI API Error: ${response.status} ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            const content = data.choices[0]?.message?.content || '';
+
+            // Clean up the response to remove preamble
+            const cleanedContent = cleanAIResponse(content);
+
+            // Format the content with basic HTML for better display
+            return formatStudyAdvice(cleanedContent);
+        } catch (error) {
+            console.error('Error generating study advice:', error);
+            throw error;
+        }
+    },
+
+    /**
      * Generate questions from text content using Deepseek-R1 via compatible API
      * @param text The source text content to generate questions from
      * @param apiKey The API key for the service
@@ -66,6 +125,62 @@ export const aiService = {
         }
     }
 };
+
+/**
+ * Helper to clean AI response by removing preamble text
+ */
+function cleanAIResponse(content: string): string {
+    // Remove common preamble phrases
+    const preamblePatterns = [
+        /^(Below is|Here's|Here is|I'll provide|I will provide|Let me provide|I've prepared|I have prepared).*?[\n:]/i,
+        /^(Sure!|Certainly!|Of course!|Absolutely!).*?\n/i,
+        /^(Based on|Given|For).*?test.*?[:,]\s*/i,
+    ];
+
+    let cleaned = content.trim();
+
+    for (const pattern of preamblePatterns) {
+        cleaned = cleaned.replace(pattern, '');
+    }
+
+    return cleaned.trim();
+}
+
+/**
+ * Helper to format study advice with HTML
+ */
+function formatStudyAdvice(content: string): string {
+    // Convert markdown-style formatting to HTML
+    let formatted = content
+        // Convert headers (## Header -> <h3>)
+        .replace(/^### (.+)$/gm, '<h4 class="text-base font-semibold text-gray-900 dark:text-white mt-4 mb-2">$1</h4>')
+        .replace(/^## (.+)$/gm, '<h3 class="text-lg font-bold text-gray-900 dark:text-white mt-5 mb-3">$1</h3>')
+        .replace(/^# (.+)$/gm, '<h2 class="text-xl font-bold text-gray-900 dark:text-white mt-6 mb-3">$1</h2>')
+        // Convert bold text
+        .replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-gray-900 dark:text-white">$1</strong>')
+        // Convert bullet points
+        .replace(/^- (.+)$/gm, '<li class="ml-4 text-gray-700 dark:text-gray-300">$1</li>')
+        // Convert numbered lists
+        .replace(/^\d+\. (.+)$/gm, '<li class="ml-4 text-gray-700 dark:text-gray-300">$1</li>');
+
+    // Wrap lists in ul tags
+    formatted = formatted.replace(/(<li class="ml-4[^>]*>.*<\/li>\n?)+/g, (match) => {
+        return `<ul class="list-disc space-y-1 mb-3">${match}</ul>`;
+    });
+
+    // Convert paragraphs
+    formatted = formatted
+        .split('\n\n')
+        .map(para => {
+            if (para.trim() && !para.includes('<h') && !para.includes('<ul') && !para.includes('<li')) {
+                return `<p class="text-gray-700 dark:text-gray-300 mb-3 leading-relaxed">${para.trim()}</p>`;
+            }
+            return para;
+        })
+        .join('\n');
+
+    return formatted;
+}
 
 /**
  * Helper to parse the CSV-like output from AI
